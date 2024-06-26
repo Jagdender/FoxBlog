@@ -11,14 +11,22 @@
     </div>
 </nav>
 
-<div class="offcanvas offcanvas-start" tabindex="-1" id="menu" aria-labelledby="offcanvasExampleLabel">
+<div class="offcanvas offcanvas-start offcanvas-size-sm" tabindex="-1" id="menu" aria-labelledby="offcanvasExampleLabel">
     <div class="offcanvas-header">
         <div class="offcanvas-title" id="menu">
-            <a class="btn btn-lg main-title" asp-controller="Home" asp-action="Index">
-                @SharedLocalizer["Title"]
-            </a>
+            @if (Context.GetRouteValue("controller")?.ToString() == "Home" && Context.GetRouteValue("action")?.ToString() == "Index")
+            {
+                <a class="btn btn-lg main-title" data-bs-dismiss="offcanvas">
+                    @SharedLocalizer["Title"]
+                </a>
+            }
+            else
+            {
+                <a class="btn btn-lg main-title" asp-controller="Home" asp-action="Index">
+                    @SharedLocalizer["Title"]
+                </a>
+            }
         </div>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"/>
     </div>
     <div class="offcanvas-body">
         
@@ -112,4 +120,7 @@
         transform: scale(1.05);
     }
 
+    .offcanvas-size-sm {
+        --bs-offcanvas-width: min(70vw, 360px) !important;
+    }
 </style>
