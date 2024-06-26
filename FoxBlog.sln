@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FoxBlog.Infrastructure", "F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FoxBlog.Application", "FoxBlog.Application\FoxBlog.Application.csproj", "{9C380074-0F0C-4692-9BC0-7B3DE7BA9F2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxBlog.WebApp", "FoxBlog.WebApp\FoxBlog.WebApp.csproj", "{DC565FD5-590D-4A6D-AEF5-2382AFE5F0E6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxBlog.WebApp", "FoxBlog.WebApp\FoxBlog.WebApp.csproj", "{C1A285FE-B491-4FBD-9CC0-1724757BA8E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{9C380074-0F0C-4692-9BC0-7B3DE7BA9F2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C380074-0F0C-4692-9BC0-7B3DE7BA9F2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C380074-0F0C-4692-9BC0-7B3DE7BA9F2F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DC565FD5-590D-4A6D-AEF5-2382AFE5F0E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DC565FD5-590D-4A6D-AEF5-2382AFE5F0E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DC565FD5-590D-4A6D-AEF5-2382AFE5F0E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DC565FD5-590D-4A6D-AEF5-2382AFE5F0E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1A285FE-B491-4FBD-9CC0-1724757BA8E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1A285FE-B491-4FBD-9CC0-1724757BA8E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1A285FE-B491-4FBD-9CC0-1724757BA8E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1A285FE-B491-4FBD-9CC0-1724757BA8E2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

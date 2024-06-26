@@ -6,4 +6,24 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Remove="wwwroot\md\index.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\md\index.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Westwind.AspNetCore.Markdown" Version="3.17.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\md\index.md" />
+  </ItemGroup>
+
 </Project>

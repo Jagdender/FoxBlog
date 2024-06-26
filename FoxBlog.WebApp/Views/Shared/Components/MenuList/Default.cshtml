@@ -1,0 +1,115 @@
+﻿@inject IViewLocalizer Localizer
+@inject IStringLocalizer<LangResource> SharedLocalizer
+
+
+<nav class="navbar navbar-expand-sm border-bottom box-shadow mb-3">
+    <div class="container-fluid">
+        <button class="navbar-brand btn main-title" data-bs-toggle="offcanvas" data-bs-target="#menu">
+            @SharedLocalizer["Title"]
+        </button>
+        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modal">🔧</button>
+    </div>
+</nav>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="menu" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header">
+        <div class="offcanvas-title" id="menu">
+            <a class="btn btn-lg main-title" asp-controller="Home" asp-action="Index">
+                @SharedLocalizer["Title"]
+            </a>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"/>
+    </div>
+    <div class="offcanvas-body">
+        
+    </div>
+</div>
+
+<div class="modal fade" id="modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Localizer["Settings"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="vstack gap-3">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-auto">
+                            <label for="themeSelector">@Localizer["DarkMode"]</label>
+                        </div>
+                        <div class="col-auto form-switch form-control-lg">
+                            <input class="form-check-input" type="checkbox" role="switch" id="themeSelector" onchange="setTheme(this.checked ? 'dark' : 'light')">
+                        </div>
+                    </div>
+                    <div class="row g-3 align-items-center">
+                        <div class="col-auto">
+                            <label for="langSelector">@Localizer["Language"]</label>
+                        </div>
+                        <div class="col-auto">
+                            <input type="radio" name="langOptions" class="btn-check" id="en" autocomplete="off" onchange="setLang(id)">
+                            <label class="btn btn-outline-primary" for="en">English</label>
+                        </div>
+                        <div class="col-auto">
+                            <input type="radio" name="langOptions" class="btn-check" id="zh" autocomplete="off" onchange="setLang(id)">
+                            <label class="btn btn-outline-primary" for="zh">简体中文</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const theme = document.cookie.replace(
+        /(?:(?:^|.*;\s*)theme\s*\=\s*([^;]*).*$)|^.*$/,
+        "$1",
+    );
+    document.documentElement.setAttribute("data-bs-theme", theme);
+    if (theme == "dark")
+        document.getElementById("themeSelector").setAttribute("checked", true);
+
+    const lang = document.cookie.replace(
+        /(?:(?:^|.*;\s*)lang\s*\=\s*([^;]*).*$)|^.*$/,
+        "$1",
+    ).split('|')[0].split('=')[1]
+    const langOptions = document.getElementsByName("langOptions");
+    for (let i = 0; i < langOptions.length; i++) {
+        if (langOptions[i].id == lang) {
+            langOptions[i].setAttribute("checked", "checked");
+            break;
+        }
+    }
+
+    const setLang = (lang) => {
+        const exist = document.cookie.replace(
+            /(?:(?:^|.*;\s*)lang\s*\=\s*([^;]*).*$)|^.*$/,
+            "$1",
+        );
+        if (exist == lang) return;
+        document.cookie = `lang=c=${lang}|uic=${lang}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+        location.reload();
+    }
+
+    const setTheme = (theme) => {
+        const exist = document.cookie.replace(
+            /(?:(?:^|.*;\s*)theme\s*\=\s*([^;]*).*$)|^.*$/,
+            "$1",
+        );
+        if (exist == theme) return;
+        document.cookie = `theme=${theme}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+        document.documentElement.setAttribute("data-bs-theme", theme);
+    }
+</script>
+
+<style>
+    .main-title {
+        transition: all 0.3s;
+    }
+
+    .main-title:hover {
+        transform: scale(1.05);
+    }
+
+</style>
