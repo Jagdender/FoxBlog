@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\images\Foxes.jpg" />
     <None Include="wwwroot\md\1.en.md" />
   </ItemGroup>
 

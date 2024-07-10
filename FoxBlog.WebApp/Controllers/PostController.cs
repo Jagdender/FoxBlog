@@ -21,7 +21,7 @@ namespace FoxBlog.WebApp.Controllers
             if (post is null)
                 return View("404");
 
-            string key = Path.Combine(_context.ContentPath, id + _suffix);
+            string key = Path.Combine(_context.MarkdownPath, id + _suffix);
             if (System.IO.File.Exists(key) == false)
                 return View("404");
 

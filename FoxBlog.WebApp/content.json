@@ -1,5 +1,6 @@
 {
-  "ContentPath": "wwwroot/md",
+  "MarkdownPath": "wwwroot/md",
+  "ImagePath": "wwwroot/images",
   "Posts": [
     {
       "Id": 1,
@@ -7,7 +8,7 @@
       "Category": "Default",
       "Tags": [ "Ywwuyi", "Rua" ],
       "DateTime": "2016-01-01T00:00:00Z",
-      "Header": "/images/foxes.jpg"
+      "Header": "/image/foxes.jpg"
     },
     {
       "Id": 2,

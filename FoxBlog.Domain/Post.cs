@@ -10,5 +10,6 @@ namespace FoxBlog.Domain
         public string Category { get; init; } = "Default";
         public DateTime DateTime { get; init; }
         public string? Header { get; set; }
+        public Accessibility Accessibility { get; set; } = Accessibility.Public;
     }
 }
