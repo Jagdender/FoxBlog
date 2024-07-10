@@ -1,16 +1,21 @@
 using System.Diagnostics;
 using FoxBlog.WebApp.Models;
+using FoxBlog.WebApp.Views.Shared.Resources;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace FoxBlog.WebApp.Controllers
 {
-    public class HomeController(ILogger<HomeController> logger) : Controller
+    public class HomeController(IStringLocalizer<SharedLangResource> lang) : Controller
     {
-        private readonly ILogger<HomeController> _logger = logger;
+        private readonly IStringLocalizer<SharedLangResource> _lang = lang;
 
         public IActionResult Index()
         {
-            return View();
+            if (_lang["Current"] == "zh")
+                return View("Index.zh");
+            else
+                return View("Index.en");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
