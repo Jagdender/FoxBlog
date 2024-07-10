@@ -1,8 +1,11 @@
+using FoxBlog.Infrastructure.Configurations;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Westwind.AspNetCore.Markdown;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("content.json", reloadOnChange: true, optional: false);
+builder.Services.AddContext(builder.Configuration);
 
 // Add services to the container.
 builder.Services.AddMarkdown();
@@ -43,6 +46,6 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}");
 
 app.Run();

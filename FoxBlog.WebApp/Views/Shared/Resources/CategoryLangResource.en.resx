@@ -118,15 +118,9 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Daily" xml:space="preserve">
-    <value>Daily</value>
+    <value>📖 Daily</value>
   </data>
-  <data name="DarkMode" xml:space="preserve">
-    <value>Dark Mode</value>
-  </data>
-  <data name="Language" xml:space="preserve">
-    <value>Language</value>
-  </data>
-  <data name="Settings" xml:space="preserve">
-    <value>Settings</value>
+  <data name="Default" xml:space="preserve">
+    <value>Default</value>
   </data>
 </root>

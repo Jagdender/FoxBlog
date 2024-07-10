@@ -7,11 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\md\index.md" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="wwwroot\md\index.md" />
+    <Content Remove="wwwroot\md\1.en.md" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,11 +15,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\images\" />
+    <None Include="wwwroot\images\Foxes.jpg" />
+    <None Include="wwwroot\md\1.en.md" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\md\index.md" />
+    <ProjectReference Include="..\FoxBlog.Application\FoxBlog.Application.csproj" />
+    <ProjectReference Include="..\FoxBlog.Infrastructure\FoxBlog.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

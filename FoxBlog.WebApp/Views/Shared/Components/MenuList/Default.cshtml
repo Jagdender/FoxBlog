@@ -1,7 +1,10 @@
-﻿@inject IViewLocalizer Localizer
-@inject IStringLocalizer<LangResource> SharedLocalizer
+﻿@using FoxBlog.Infrastructure
+@inject IViewLocalizer Localizer
+@inject IStringLocalizer<SharedLangResource> SharedLocalizer
+@inject IStringLocalizer<CategoryLangResource> CategoryLocalizer
+@model ContentContext
 
-
+<!-- Top bar -->
 <nav class="navbar navbar-expand-sm border-bottom box-shadow mb-3">
     <div class="container-fluid">
         <button class="navbar-brand btn main-title" data-bs-toggle="offcanvas" data-bs-target="#menu">
@@ -11,7 +14,9 @@
     </div>
 </nav>
 
+<!-- Side bar -->
 <div class="offcanvas offcanvas-start offcanvas-size-sm" tabindex="-1" id="menu" aria-labelledby="offcanvasExampleLabel">
+    
     <div class="offcanvas-header">
         <div class="offcanvas-title" id="menu">
             @if (Context.GetRouteValue("controller")?.ToString() == "Home" && Context.GetRouteValue("action")?.ToString() == "Index")
@@ -28,11 +33,38 @@
             }
         </div>
     </div>
+
     <div class="offcanvas-body">
-        
+        <div class="accordion" id="accordionParent">
+
+            @foreach (var posts in Model.Posts.GroupBy(p => p.Category))
+            {
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@(posts.Key)">
+                            @CategoryLocalizer[posts.Key]
+                        </button>
+                    </h2>
+                    <div id="collapse-@(posts.Key)" class="accordion-collapse collapse" data-bs-parent="#accordionParent">
+                        <div class="accordion-body">
+                            <div class="vstack gap-1">
+                                @foreach(var post in posts.OrderBy(p => p.DateTime))
+                                {
+                                    <a class="btn btn-outline-info" asp-controller="Post" asp-action="Index" asp-route-id="@post.Id">
+                                        @post.Title
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
     </div>
 </div>
 
+<!-- Settings -->
 <div class="modal fade" id="modal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -96,7 +128,7 @@
             "$1",
         );
         if (exist == lang) return;
-        document.cookie = `lang=c=${lang}|uic=${lang}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+        document.cookie = `lang=c=${lang}|uic=${lang}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/`;
         location.reload();
     }
 
@@ -106,7 +138,7 @@
             "$1",
         );
         if (exist == theme) return;
-        document.cookie = `theme=${theme}; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
+        document.cookie = `theme=${theme}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/`;
         document.documentElement.setAttribute("data-bs-theme", theme);
     }
 </script>

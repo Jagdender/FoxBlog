@@ -1,0 +1,68 @@
+﻿@model IEnumerable<Post>
+
+
+<div class="vstack gap-3">
+    @foreach (var post in Model)
+    {
+        <div class="card mb-0" onclick='window.location.href="@Url.Action("Index", "Post", new { id = post.Id })"'>
+            <div class="row g-0">
+                @if(post.Header is not null)
+                {                    
+                    <div class="col-4 col-sm-4 col-md-3 col-lg-2">
+                        <img src="@post.Header" class="rounded-start img-fluid">
+                    </div>
+                }
+                <div class="col-8 col-sm-8 col-md-9 col-lg-10">
+                    <div class="card-body vstack gap-2">
+                        <h5 class="card-title">@post.Title</h5>
+                        <div class="hstack gap-1">
+                            <a href="@Url.Action("List", "Post", new { Category = post.Category })"
+                               class="badge btn rounded-pill bg-info">
+                               @post.Category
+                            </a>
+                            @foreach(var tag in post.Tags)
+                            {
+                                Dictionary<string, string> param = new(){ { "tag", tag } };
+                                <a class="badge btn bg-secondary"
+                                   asp-controller="Post" asp-action="List"
+                                   asp-all-route-data="param">
+                                   @tag
+                                </a>
+                            }
+                        </div>
+                        <h6 class="card-subtitle mb-2 text-muted">@post.DateTime</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .img-fluid {
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .card {
+        cursor:pointer;
+        transition: 0.25s ease-in-out;
+    }
+    .card:hover {
+        box-shadow: 0 .225rem .45rem rgba(0,0,0, .175);
+        transform: scale(1.005)
+    }
+
+    .badge {
+        cursor: pointer;
+        transition: 0.2s ease-in-out;
+    }
+    .badge:hover {
+        transform: scale(1.05)
+    }
+
+</style>
+
+<script>
+
+</script>

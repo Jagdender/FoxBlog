@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FoxBlog.Domain\FoxBlog.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,0 +1,20 @@
+{
+  "ContentPath": "wwwroot/md",
+  "Posts": [
+    {
+      "Id": 1,
+      "Title": "My First Test Post",
+      "Category": "Default",
+      "Tags": [ "Ywwuyi", "Rua" ],
+      "DateTime": "2016-01-01T00:00:00Z",
+      "Header": "/images/foxes.jpg"
+    },
+    {
+      "Id": 2,
+      "Title": "My Second Test Post",
+      "Category": "Daily",
+      "Tags": [ "Ywwuyi" ],
+      "DateTime": "2016-01-02T00:00:00Z"
+    }
+  ]
+}

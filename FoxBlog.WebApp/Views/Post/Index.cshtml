@@ -1,0 +1,59 @@
+﻿@model Post
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="row m-md-1 mb-4 mb-md-5">
+    <div class="col-md-7">
+        @if(Model.Header is not null)
+        {
+            <img src="@Model.Header" class="img-fluid" />
+        }
+    </div>
+
+    <div class="col-md-5 align-self-center vstack gap-1">
+        <h3 class="text-center mx-5 my-3 my-md-3 m-md-0">
+            @Model.Title
+        </h3>
+
+        <div class="d-flex justify-content-center">
+            <a href="@Url.Action("List","Post",new{Category=Model.Category})"
+               class="btn badge rounded-pill bg-info"
+                type="button">
+                @Model.Category
+            </a>
+        </div>
+        
+        <div class="hstack gap-1 justify-content-center">
+            @foreach(var tag in Model.Tags)
+            {
+                Dictionary<string, string> param = new()
+                {
+                    { "tag", tag }
+                };
+                <a class="badge btn bg-secondary" 
+                    asp-controller="Post" asp-action="List"
+                    asp-all-route-data="param">
+                    @tag
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+<markdown markdown="@ViewData["Markdown"]" sanitize-html />
+
+<style>
+    .badge {
+        cursor: pointer;
+        transition: 0.2s ease-in-out;
+    }
+    .badge:hover {
+        transform: scale(1.05)
+    }
+
+    .img-fluid{
+        max-height: 50vh;
+        overflow: hidden;
+    }
+</style>
