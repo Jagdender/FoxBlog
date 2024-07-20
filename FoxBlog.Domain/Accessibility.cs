@@ -3,7 +3,6 @@
     public enum Accessibility
     {
         Public,
-        Auth,
         Private,
     }
 }

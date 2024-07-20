@@ -1,8 +1,7 @@
-﻿@using FoxBlog.Infrastructure
-@inject IViewLocalizer Localizer
+﻿@inject IViewLocalizer Localizer
 @inject IStringLocalizer<SharedLangResource> SharedLocalizer
 @inject IStringLocalizer<CategoryLangResource> CategoryLocalizer
-@model ContentContext
+@model IEnumerable<Post>
 
 <!-- Top bar -->
 <nav class="navbar navbar-expand-sm border-bottom box-shadow mb-3">
@@ -37,7 +36,7 @@
     <div class="offcanvas-body">
         <div class="accordion" id="accordionParent">
 
-            @foreach (var posts in Model.Posts.GroupBy(p => p.Category))
+            @foreach (var posts in Model.GroupBy(p => p.Category))
             {
                 <div class="accordion-item">
                     <h2 class="accordion-header">

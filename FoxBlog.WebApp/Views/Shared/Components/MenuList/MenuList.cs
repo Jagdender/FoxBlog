@@ -1,14 +1,16 @@
-﻿using FoxBlog.Infrastructure;
+﻿using FoxBlog.Application.Contexts;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace FoxBlog.WebApp.Views.Shared.Components.MenuList
 {
-    public sealed class MenuList(IOptionsSnapshot<ContentContext> context) : ViewComponent
+    public sealed class MenuList(IPostContext context) : ViewComponent
     {
+        private readonly IPostContext _context = context;
+
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            return View(context.Value);
+            var posts = await _context.ReadAsync();
+            return View(posts);
         }
     }
 }

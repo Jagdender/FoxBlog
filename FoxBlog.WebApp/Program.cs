@@ -4,10 +4,9 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Westwind.AspNetCore.Markdown;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddJsonFile("content.json", reloadOnChange: true, optional: false);
 builder.Services.AddContext(builder.Configuration);
 
-// Add services to the container.
+// Add services to the container.「方案选单」
 builder.Services.AddMarkdown();
 builder.Services.AddLocalization();
 builder.Services.Configure<RequestLocalizationOptions>(options =>

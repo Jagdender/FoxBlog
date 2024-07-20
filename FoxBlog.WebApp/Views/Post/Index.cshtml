@@ -5,7 +5,7 @@
 
 <div class="row m-md-1 mb-4 mb-md-5">
     <div class="col-md-7">
-        @if(Model.Header is not null)
+        @if (@Model.Header is not null)
         {
             <img src="@Model.Header" class="img-fluid" />
         }
@@ -45,7 +45,7 @@
 
 </div>
 
-<markdown markdown="@ViewData["Markdown"]" sanitize-html />
+<markdown markdown="@Model.Content" sanitize-html />
 
 <style>
     .badge {
