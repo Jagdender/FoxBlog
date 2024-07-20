@@ -6,10 +6,10 @@
 <!-- Top bar -->
 <nav class="navbar navbar-expand-sm border-bottom box-shadow mb-3">
     <div class="container-fluid">
-        <button class="navbar-brand btn main-title" data-bs-toggle="offcanvas" data-bs-target="#menu">
+        <button class="border navbar-brand btn ani-button" data-bs-toggle="offcanvas" data-bs-target="#menu">
             @SharedLocalizer["Title"]
         </button>
-        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modal">🔧</button>
+        <button class="btn border ani-button" data-bs-toggle="modal" data-bs-target="#modal">🔧</button>
     </div>
 </nav>
 
@@ -20,13 +20,13 @@
         <div class="offcanvas-title" id="menu">
             @if (Context.GetRouteValue("controller")?.ToString() == "Home" && Context.GetRouteValue("action")?.ToString() == "Index")
             {
-                <a class="btn btn-lg main-title" data-bs-dismiss="offcanvas">
+                <a class="btn btn-lg ani-button border" data-bs-dismiss="offcanvas">
                     @SharedLocalizer["Title"]
                 </a>
             }
             else
             {
-                <a class="btn btn-lg main-title" asp-controller="Home" asp-action="Index">
+                <a class="btn btn-lg ani-button border shadow-sm" asp-controller="Home" asp-action="Index">
                     @SharedLocalizer["Title"]
                 </a>
             }
@@ -143,11 +143,11 @@
 </script>
 
 <style>
-    .main-title {
+    .ani-button {
         transition: all 0.3s;
     }
 
-    .main-title:hover {
+    .ani-button:hover {
         transform: scale(1.05);
     }
 
