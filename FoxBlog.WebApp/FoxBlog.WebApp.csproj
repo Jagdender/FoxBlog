@@ -7,6 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\md\home.en.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\md\home.en.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\md\home.en.md" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Westwind.AspNetCore.Markdown" Version="3.17.0" />
   </ItemGroup>
 

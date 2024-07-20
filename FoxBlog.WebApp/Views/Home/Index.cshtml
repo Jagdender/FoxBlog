@@ -1,0 +1,13 @@
+﻿@using System.Globalization
+@{
+    ViewData["Title"] = "Home";
+    string markdown = $"~/md/home.{CultureInfo.CurrentCulture.Name}.md";
+}
+
+<img src="/image/avatar.jpg" height="200" class="m-auto m-sm-5 d-flex rounded-circle" />
+
+<markdown filename="@markdown"></markdown>
+
+<div class="fixed-bottom text-center my-3">
+    <a href="https://github.com/Jagdender/FoxBlog">GitHub</a>
+</div>

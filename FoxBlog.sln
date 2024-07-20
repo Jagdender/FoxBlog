@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FoxBlog.Infrastructure", "F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FoxBlog.Application", "FoxBlog.Application\FoxBlog.Application.csproj", "{9C380074-0F0C-4692-9BC0-7B3DE7BA9F2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoxBlog.WebApp", "FoxBlog.WebApp\FoxBlog.WebApp.csproj", "{C1A285FE-B491-4FBD-9CC0-1724757BA8E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FoxBlog.WebApp", "FoxBlog.WebApp\FoxBlog.WebApp.csproj", "{C1A285FE-B491-4FBD-9CC0-1724757BA8E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
