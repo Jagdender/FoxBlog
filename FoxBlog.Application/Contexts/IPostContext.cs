@@ -1,9 +1,8 @@
 ﻿using FoxBlog.Domain;
 
-namespace FoxBlog.Application.Contexts
+namespace FoxBlog.Application.Contexts;
+
+public interface IPostContext
 {
-    public interface IPostContext
-    {
-        public Task<IEnumerable<Post>> ReadAsync();
-    }
+    public Task<IEnumerable<Post>> ReadAsync();
 }

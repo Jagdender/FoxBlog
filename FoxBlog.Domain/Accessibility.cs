@@ -1,8 +1,7 @@
-﻿namespace FoxBlog.Domain
+﻿namespace FoxBlog.Domain;
+
+public enum Accessibility
 {
-    public enum Accessibility
-    {
-        Public,
-        Private,
-    }
+    Public,
+    Private,
 }

@@ -1,4 +1,3 @@
-﻿namespace FoxBlog.WebApp.Views.Shared.Resources
-{
-    public sealed class CategoryLangResource { }
-}
+﻿namespace FoxBlog.WebApp.Views.Shared.Resources;
+
+public sealed class CategoryLangResource { }
