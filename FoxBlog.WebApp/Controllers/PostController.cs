@@ -1,40 +1,37 @@
-﻿using FoxBlog.Application.Contexts;
-using FoxBlog.Infrastructure;
+﻿using FoxBlog.Application.PostEntity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace FoxBlog.WebApp.Controllers;
 
-public sealed partial class PostController(
-    IPostContext context,
-    IOptionsSnapshot<ContentOptions> options
-) : Controller
+public sealed partial class PostController(IPostContext context) : Controller
 {
-    private readonly IPostContext _context = context;
-    private readonly ContentOptions _options = options.Value;
-
-    [Route("[controller]/{id:int}")]
-    public async Task<IActionResult> Index(int id)
+    [Route("[controller]/{post}")]
+    public async Task<IActionResult> Index(int post, CancellationToken cancellationToken)
     {
-        var posts = await _context.ReadAsync();
-        var post = posts.FirstOrDefault(p => p.Id == id);
-        if (post is null)
-            return View("404");
+        PostKey key = new(post);
 
-        return View(post);
+        var postEntity = await context.GetAsync(key, cancellationToken);
+
+        if (postEntity == null)
+            return Redirect("/");
+
+        // TODO: Implement private postEntity handling
+        if (postEntity.IsPrivate)
+            return Redirect("/");
+
+        return View(postEntity);
     }
 
     [Route("/Posts")]
-    [Route("/Posts/{category}")]
-    public async Task<IActionResult> List(string? category = null)
+    public async Task<IActionResult> List(
+        [FromQuery] int? category = null,
+        CancellationToken cancellationToken = default
+    )
     {
-        var posts = await _context.ReadAsync();
+        var posts = await context.GetAllAsync(cancellationToken);
 
-        if (string.IsNullOrWhiteSpace(category) == false)
-            posts = posts.Where(p => p.Category == category);
-
-        if (Request.Query.TryGetValue("tag", out var tags))
-            posts = posts.Where(p => p.Tags.Except(tags).Any());
+        if (category.HasValue)
+            posts = posts.Where(p => p.CategoryKey.Value == category);
 
         return View(posts);
     }

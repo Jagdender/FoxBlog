@@ -6,7 +6,7 @@ using Westwind.AspNetCore.Markdown;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddContext(builder.Configuration);
 
-// Add services to the container.「方案选单」
+// Add services to the container.
 builder.Services.AddMarkdown();
 builder.Services.AddLocalization();
 builder.Services.Configure<RequestLocalizationOptions>(options =>
@@ -27,13 +27,22 @@ builder
     .AddApplicationPart(typeof(MarkdownPageProcessorMiddleware).Assembly)
     .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
 
+//builder.Services.AddResponseCompression(options =>
+//{
+//    options.EnableForHttps = true;
+//    options.Providers.Add<BrotliCompressionProvider>();
+//    options.Providers.Add<GzipCompressionProvider>();
+//    options.MimeTypes = ResponseCompressionDefaults.MimeTypes;
+//});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
 }
+
+//app.UseResponseCompression();
 
 app.UseRequestLocalization();
 
@@ -44,6 +53,13 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.MapFallback(context =>
+{
+    context.Response.StatusCode = StatusCodes.Status404NotFound;
+    context.Response.Redirect("/");
+    return Task.CompletedTask;
+});
 
 app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}");
 

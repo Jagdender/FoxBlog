@@ -1,17 +1,17 @@
-﻿@inject IViewLocalizer Localizer
-@inject IStringLocalizer<SharedLangResource> SharedLocalizer
-@inject IStringLocalizer<CategoryLangResource> CategoryLocalizer
+﻿@inject IStringLocalizer<SharedLangResource> I18n
 @model IEnumerable<Post>
 
 <!-- Top bar -->
-<nav class="navbar navbar-expand-sm border-bottom box-shadow mb-3">
-    <div class="container-fluid">
-        <button class="border navbar-brand btn ani-button" data-bs-toggle="offcanvas" data-bs-target="#menu">
-            @SharedLocalizer["Title"]
-        </button>
-        <button class="btn border ani-button" data-bs-toggle="modal" data-bs-target="#modal">🔧</button>
-    </div>
-</nav>
+<header class="sticky-top">
+    <nav class="navbar navbar-expand-smbd-navbar border-bottom box-shadow mb-3">
+        <div class="container-fluid">
+            <button class="border navbar-brand btn ani-button" data-bs-toggle="offcanvas" data-bs-target="#menu">
+                @I18n["Title"]
+            </button>
+            <button class="btn border ani-button" data-bs-toggle="modal" data-bs-target="#modal">🔧</button>
+        </div>
+    </nav>
+</header>
 
 <!-- Side bar -->
 <div class="offcanvas offcanvas-start offcanvas-size-sm" tabindex="-1" id="menu" aria-labelledby="offcanvasExampleLabel">
@@ -21,13 +21,13 @@
             @if (Context.GetRouteValue("controller")?.ToString() == "Home" && Context.GetRouteValue("action")?.ToString() == "Index")
             {
                 <a class="btn btn-lg ani-button border" data-bs-dismiss="offcanvas">
-                    @SharedLocalizer["Title"]
+                    @I18n["Title"]
                 </a>
             }
             else
             {
                 <a class="btn btn-lg ani-button border shadow-sm" asp-controller="Home" asp-action="Index">
-                    @SharedLocalizer["Title"]
+                    @I18n["Title"]
                 </a>
             }
         </div>
@@ -36,20 +36,24 @@
     <div class="offcanvas-body">
         <div class="accordion" id="accordionParent">
 
-            @foreach (var posts in Model.GroupBy(p => p.Category))
+            @foreach (var record in Model.GroupBy(post => post.Category))
             {
                 <div class="accordion-item">
                     <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@(posts.Key)">
-                            @CategoryLocalizer[posts.Key]
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@(WebUtility.UrlEncode(record.Key.Key))">
+                            @record.Key.Name
                         </button>
                     </h2>
-                    <div id="collapse-@(posts.Key)" class="accordion-collapse collapse" data-bs-parent="#accordionParent">
+                    <div id="collapse-@(WebUtility.UrlEncode(record.Key.Key))" class="accordion-collapse collapse" data-bs-parent="#accordionParent">
                         <div class="accordion-body">
                             <div class="vstack gap-1">
-                                @foreach(var post in posts.OrderBy(p => p.DateTime))
+                                @foreach(var post in record)
                                 {
-                                    <a class="btn btn-outline-info" asp-controller="Post" asp-action="Index" asp-route-id="@post.Id">
+                                    <a class="btn btn-outline-info" 
+                                        asp-controller="Post" 
+                                        asp-action="Index" 
+                                        asp-route-category="@record.Key.Key" 
+                                        asp-route-post="@post.Key">
                                         @post.Title
                                     </a>
                                 }
@@ -65,17 +69,17 @@
 
 <!-- Settings -->
 <div class="modal fade" id="modal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">@Localizer["Settings"]</h5>
+                <h5 class="modal-title">@I18n["Settings"]</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="vstack gap-3">
                     <div class="row g-4 align-items-center">
                         <div class="col-auto">
-                            <label for="themeSelector">@Localizer["DarkMode"]</label>
+                            <label for="themeSelector">@I18n["DarkMode"]</label>
                         </div>
                         <div class="col-auto form-switch form-control-lg">
                             <input class="form-check-input" type="checkbox" role="switch" id="themeSelector" onchange="setTheme(this.checked ? 'dark' : 'light')">
@@ -83,7 +87,7 @@
                     </div>
                     <div class="row g-3 align-items-center">
                         <div class="col-auto">
-                            <label for="langSelector">@Localizer["Language"]</label>
+                            <label for="langSelector">@I18n["Language"]</label>
                         </div>
                         <div class="col-auto">
                             <input type="radio" name="langOptions" class="btn-check" id="en" autocomplete="off" onchange="setLang(id)">
@@ -101,27 +105,30 @@
 </div>
 
 <script>
-    const theme = document.cookie.replace(
-        /(?:(?:^|.*;\s*)theme\s*\=\s*([^;]*).*$)|^.*$/,
-        "$1",
-    );
-    document.documentElement.setAttribute("data-bs-theme", theme);
-    if (theme == "dark")
-        document.getElementById("themeSelector").setAttribute("checked", true);
 
-    const lang = document.cookie.replace(
-        /(?:(?:^|.*;\s*)lang\s*\=\s*([^;]*).*$)|^.*$/,
-        "$1",
-    ).split('|')[0].split('=')[1]
-    const langOptions = document.getElementsByName("langOptions");
-    for (let i = 0; i < langOptions.length; i++) {
-        if (langOptions[i].id == lang) {
-            langOptions[i].setAttribute("checked", "checked");
-            break;
+    function init() {
+        const theme = document.cookie.replace(
+            /(?:(?:^|.*;\s*)theme\s*\=\s*([^;]*).*$)|^.*$/,
+            "$1",
+        );
+        document.documentElement.setAttribute("data-bs-theme", theme);
+        if (theme == "dark")
+            document.getElementById("themeSelector").setAttribute("checked", true);
+
+        const lang = document.cookie.replace(
+            /(?:(?:^|.*;\s*)lang\s*\=\s*([^;]*).*$)|^.*$/,
+            "$1",
+        ).split('|')[0].split('=')[1]
+        const langOptions = document.getElementsByName("langOptions");
+        for (let i = 0; i < langOptions.length; i++) {
+            if (langOptions[i].id == lang) {
+                langOptions[i].setAttribute("checked", "checked");
+                break;
+            }
         }
     }
 
-    const setLang = (lang) => {
+    function setLang(lang) {
         const exist = document.cookie.replace(
             /(?:(?:^|.*;\s*)lang\s*\=\s*([^;]*).*$)|^.*$/,
             "$1",
@@ -131,7 +138,7 @@
         location.reload();
     }
 
-    const setTheme = (theme) => {
+    function setTheme(theme) {
         const exist = document.cookie.replace(
             /(?:(?:^|.*;\s*)theme\s*\=\s*([^;]*).*$)|^.*$/,
             "$1",
@@ -140,6 +147,8 @@
         document.cookie = `theme=${theme}; expires=Fri, 31 Dec 9999 23:59:59 GMT; path=/`;
         document.documentElement.setAttribute("data-bs-theme", theme);
     }
+
+    init();
 </script>
 
 <style>
@@ -153,5 +162,9 @@
 
     .offcanvas-size-sm {
         --bs-offcanvas-width: min(70vw, 360px) !important;
+    }
+
+    header{
+        background-color: var(--bs-body-bg);
     }
 </style>

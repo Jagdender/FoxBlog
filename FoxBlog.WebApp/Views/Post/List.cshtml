@@ -1,32 +1,40 @@
-﻿@model IEnumerable<Post>
+﻿@using Microsoft.AspNetCore.Components
+@model IEnumerable<Post>
+@inject IPostHeaderRepository headers
 
 
 <div class="vstack gap-3">
     @foreach (var post in Model)
     {
-        <div class="card mb-0" onclick='window.location.href="@Url.Action("Index", "Post", new { id = post.Id })"'>
+        <div class="card mb-0" onclick='document.location.href=`@Url.Action("Index", "Post", new {post = post.Key.Value})`'>
             <div class="row g-0">
-                @if(post.Header is not null)
-                {                    
-                    <div class="col-4 col-sm-4 col-md-3 col-lg-2">
-                        <img src="@post.Header" class="rounded-start img-fluid">
-                    </div>
+                @{
+                    string? header = headers.GetHeaderImgUrl(post.Key);
+                    if(header is not null)
+                    {                    
+                        <div class="col-4 col-sm-4 col-md-3 col-lg-2 align-content-center">
+                            <img src="@header" class="rounded-start img-fluid">
+                        </div>
+                    }
                 }
                 <div class="col-8 col-sm-8 col-md-9 col-lg-10">
                     <div class="card-body vstack gap-2">
                         <h5 class="card-title">@post.Title</h5>
                         <div class="hstack gap-1">
-                            <a href="@Url.Action("List", "Post", new { Category = post.Category })"
+                            <a 
+                            onclick="prevent()"
+                               asp-controller="Post" asp-action="List"
+                               asp-route-category="@post.Category.Key"
                                class="badge btn rounded-pill bg-info">
-                               @post.Category
+                               @post.Category.Name
                             </a>
                             @foreach(var tag in post.Tags)
                             {
                                 Dictionary<string, string> param = new(){ { "tag", tag } };
                                 <a class="badge btn bg-secondary"
-                                   asp-controller="Post" asp-action="List"
-                                   asp-all-route-data="param">
-                                   @tag
+                                    asp-controller="Post" asp-action="List"
+                                    asp-route-tags="param">
+                                    @tag
                                 </a>
                             }
                         </div>
@@ -40,13 +48,19 @@
 
 <style>
     .img-fluid {
+        width: 100%;
         height: 100%;
-        object-fit: cover;
+        transform: translateY(-50%);
+        top: 60px;
+        position: relative;
     }
 
     .card {
+        overflow: hidden;
+        max-height: 120px;
         cursor:pointer;
         transition: 0.25s ease-in-out;
+        pointer-events: auto;
     }
     .card:hover {
         box-shadow: 0 .225rem .45rem rgba(0,0,0, .175);
@@ -64,5 +78,7 @@
 </style>
 
 <script>
-
+    function prevent(){
+        event.stopPropagation();
+    }
 </script>

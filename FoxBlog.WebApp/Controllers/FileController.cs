@@ -1,23 +1,68 @@
-﻿using FoxBlog.Infrastructure;
+﻿using System.Diagnostics.CodeAnalysis;
+using FoxBlog.Application.PostEntity;
+using FoxBlog.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
 namespace FoxBlog.WebApp.Controllers;
 
-public class FileController(IOptionsSnapshot<ContentOptions> options) : Controller
+public class FileController(
+    IOptionsSnapshot<ContentOptions> options,
+    IPostHeaderRepository headerRepository
+) : Controller
 {
-    private readonly ContentOptions _options = options.Value;
+    private readonly ContentOptions options = options.Value;
 
     [HttpGet("/image/{filename}")]
-    public IActionResult Image(string filename)
+    [HttpGet("/image/{post:int}/{filename}")]
+    public IActionResult Image(string filename, int? post = null)
     {
-        filename = Path.Combine(_options.ImagePath, filename);
-
-        if (System.IO.File.Exists(filename) == false)
+        if (post.HasValue)
         {
-            return NotFound();
+            PostKey key = new(post.Value);
+            string? section = options.GetPostSectionPath(key);
+            if (!Directory.Exists(section))
+                return NotFound();
+
+            filename = Path.Combine(section, filename);
+            return filename.Exists() ? File(filename.OpenRead(), "image/*") : NotFound();
         }
-        var stream = System.IO.File.OpenRead(filename);
-        return File(stream, "image/*");
+
+        if (options.GlobalImageSectionPath is null)
+            return NotFound();
+
+        filename = Path.Combine(options.GlobalImageSectionPath, filename);
+
+        if (filename.NotExists())
+            return NotFound();
+
+        return File(filename.OpenRead(), "image/*");
+    }
+
+    [HttpGet("/header/{post:int}")]
+    public IActionResult Header(int post)
+    {
+        var postKey = new PostKey(post);
+        var file = headerRepository.GetHeaderImgFile(postKey);
+
+        return file is null ? NotFound() : File(file, "image/*");
+    }
+}
+
+file static class FileSystemExtensions
+{
+    public static bool Exists([NotNullWhen(true)] this string? filename)
+    {
+        return File.Exists(filename);
+    }
+
+    public static bool NotExists([NotNullWhen(false)] this string? filename)
+    {
+        return !File.Exists(filename);
+    }
+
+    public static Stream OpenRead(this string filename)
+    {
+        return File.OpenRead(filename);
     }
 }

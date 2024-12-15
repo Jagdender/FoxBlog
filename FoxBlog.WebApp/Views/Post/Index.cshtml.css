@@ -1,0 +1,24 @@
+﻿.badge {
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+}
+
+    .badge:hover {
+        transform: scale(1.05)
+    }
+
+.title{
+    font-size: 27px;
+}
+
+.img-frame {
+    max-height: 36vh;
+    overflow: hidden;
+}
+
+.img-fluid {
+    width: 100%;
+    transform: translateY(-50%);
+    top: 50%;
+    position: relative;
+}

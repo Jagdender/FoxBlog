@@ -1,5 +1,5 @@
-﻿using FoxBlog.Application.Contexts;
-using FoxBlog.Infrastructure.Factories;
+﻿using FoxBlog.Application.CategoryEntity;
+using FoxBlog.Application.PostEntity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,6 +14,9 @@ public static partial class IServiceCollectionExtension
     {
         services.Configure<ContentOptions>(configuration);
         services.AddScoped<IPostContext, PostContext>();
+        services.AddScoped<ICategoryContext, CategoryContext>();
+        services.AddScoped<IPostHeaderRepository, PostHeaderRepository>();
+        services.AddScoped<IPostContentReader, PostContentReader>();
 
         return services;
     }

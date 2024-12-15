@@ -120,6 +120,15 @@
   <data name="Current" xml:space="preserve">
     <value>zh</value>
   </data>
+  <data name="DarkMode" xml:space="preserve">
+    <value>黑暗模式</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>简体中文</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>设置</value>
+  </data>
   <data name="Title" xml:space="preserve">
     <value>🦊的小屋</value>
   </data>

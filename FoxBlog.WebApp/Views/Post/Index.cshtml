@@ -1,29 +1,35 @@
 ﻿@model Post
+@inject ICategoryContext categories
+@inject IPostHeaderRepository headers
+@inject IPostContentReader reader
 @{
     ViewData["Title"] = Model.Title;
 }
 
 <div class="row m-md-1 mb-4 mb-md-5">
-    <div class="col-md-7">
-        @if (@Model.Header is not null)
+    @{
+        var headerUrl = headers.GetHeaderImgUrl(Model.Key);
+        if (headerUrl is not null)
         {
-            <img src="@Model.Header" class="img-fluid" />
+            <div class="col-md-7 text-center img-frame">
+                <img src="@headerUrl" class="img-fluid" />
+            </div>
         }
-    </div>
+    }
 
     <div class="col-md-5 align-self-center vstack gap-1">
-        <h3 class="text-center mx-5 my-3 my-md-3 m-md-auto pt-md-3">
+        <h3 class="text-center mx-5 my-3 my-md-3 m-md-auto pt-md-3 title">
             @Model.Title
         </h3>
 
         <div class="d-flex justify-content-center">
-            <a href="@Url.Action("List","Post",new{Category=Model.Category})"
-               class="btn badge rounded-pill bg-info"
-                type="button">
-                @Model.Category
+            <a href="@Url.Action("List","Post", new{Category = Model.Category.Key})"
+            class="btn badge rounded-pill bg-info"
+            type="button">
+                @Model.Category.Name
             </a>
         </div>
-        
+
         <div class="hstack gap-1 justify-content-center">
             @foreach(var tag in Model.Tags)
             {
@@ -32,32 +38,64 @@
                     { "tag", tag }
                 };
                 <a class="badge btn bg-secondary" 
-                    asp-controller="Post" asp-action="List"
-                    asp-all-route-data="param">
+                asp-controller="Post" asp-action="List"
+                asp-all-route-data="param">
                     @tag
                 </a>
             }
         </div>
         <h6 class="mt-3 text-center text-muted">@Model.DateTime</h6>
     </div>
-
-
-
 </div>
 
-<markdown markdown="@Model.Content" sanitize-html />
+@{
+    string content = await reader.ReadAsync(Model.Key) ?? string.Empty;
+    <markdown markdown="@content" sanitize-html />
+}
 
 <style>
-    .badge {
-        cursor: pointer;
-        transition: 0.2s ease-in-out;
-    }
-    .badge:hover {
-        transform: scale(1.05)
+    main h1{
+        font-size: 35px;
+        border-bottom: 2px solid grey;
+        padding-bottom: 5px;
+        margin-top: 1em;
     }
 
-    .img-fluid{
-        max-height: 50vh;
-        overflow: hidden;
+    main h2 {
+        border-bottom: 1px solid grey;
+        padding-bottom: 5px;
+        margin-top: 1em;
+    }
+
+    main h3 {
+        margin-top: 0.8em;
+    }
+
+    main blockquote {
+        filter: brightness(80%);
+        border-left-style: solid;
+        border-left-width: 10px;
+        border-left-color: rgb(177, 132, 255);
+        background-color: transparent;
+        box-shadow: 0 0 3px 3px rgba(0, 0, 0, .05) inset;
+        border-radius: 3px;
+        padding-left: 1em;
+        min-height: 40px;
+        align-content: center;
+    }
+
+        main blockquote > p:first-child {
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+            margin-right: 1em;
+        }
+
+        main blockquote > p:last-child {
+            margin-bottom: 0.5em;
+            margin-right: 1em;
+        }
+
+    main img {
+        max-width: 100%;
     }
 </style>

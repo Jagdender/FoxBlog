@@ -1,22 +1,9 @@
 ﻿@using System.Globalization
+@using Microsoft.Extensions.Options
+@inject IOptionsSnapshot<ContentOptions> options
 @{
     ViewData["Title"] = "Home";
-    string markdown = $"~/md/home.{CultureInfo.CurrentCulture.Name}.md";
 }
 
-<img src="/image/avatar.jpg" height="200" class="m-auto m-sm-5 d-flex rounded-circle" />
+<markdown filename="@options.Value.GetHomeFilePath()"></markdown>
 
-<markdown filename="@markdown"></markdown>
-
-<div class="footer">
-    <a href="https://github.com/Jagdender/FoxBlog">GitHub</a>
-</div>
-
-<style>
-    .footer{
-        position: absolute;
-        bottom: 16px;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-</style>
