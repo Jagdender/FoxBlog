@@ -1,9 +1,9 @@
 ﻿@using System.Globalization
 @using Microsoft.Extensions.Options
-@inject IOptionsSnapshot<ContentOptions> options
+
 @{
     ViewData["Title"] = "Home";
 }
 
-<markdown filename="@options.Value.GetHomeFilePath()"></markdown>
+<markdown markdown="@ViewData["Markdown"]"></markdown>
 

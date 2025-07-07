@@ -1,13 +1,26 @@
 using System.Diagnostics;
+using FoxBlog.Infrastructure;
 using FoxBlog.WebApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace FoxBlog.WebApp.Controllers;
 
-public class HomeController : Controller
+public class HomeController(IOptionsSnapshot<ContentOptions> options) : Controller
 {
-    public IActionResult Index()
+    private readonly ContentOptions options = options.Value;
+
+    public async Task<IActionResult> Index(CancellationToken cancellationToken)
     {
+        string? filename = options.GetHomeFilePath();
+
+        if (!System.IO.File.Exists(filename))
+            return NotFound();
+
+        string markdown = await System.IO.File.ReadAllTextAsync(filename, cancellationToken);
+
+        ViewData["Markdown"] = markdown;
+
         return View();
     }
 
@@ -19,3 +32,5 @@ public class HomeController : Controller
         );
     }
 }
+
+internal readonly record struct MarkdownContent(string Value);
