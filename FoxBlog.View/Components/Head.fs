@@ -28,7 +28,10 @@ type Head(context: UI.Context) =
             """
 
     let ui =
-        { supported = context.supported |> List.map UIdto.map
+        { supported = context.supported |> List.map UIdto.map |> List.toArray
           defaultUI = context.defaultUI |> Option.map UIdto.map }
+        |> Json.serialize
+        |> Script.withJson "data-ui"
 
-    member _.content = head [] [ misc; title [] [] ]
+
+    member _.content = head [] [ misc; ui; title [] [] ]

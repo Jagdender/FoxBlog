@@ -2,7 +2,7 @@ namespace FoxBlog
 
 module Types =
     type UI =
-        { supported: UIdto list
+        { supported: UIdto array
           defaultUI: UIdto option }
 
     and UIdto =

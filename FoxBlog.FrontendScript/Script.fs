@@ -45,14 +45,12 @@ module Script =
             |> Option.map (fun meta -> meta.getAttribute "content")
 
     module private UI =
-        type Type = { name: string; display: string }
 
-        let supported =
-            document.documentElement.dataset.get ("ui-supported")
-            |> Option.map (fun x ->
-                x.Split("|", StringSplitOptions.RemoveEmptyEntries)
-                |> Array.map (fun x -> x.Split(":") |> fun e -> { name = e[0]; display = e[1] }))
-            |> Option.defaultValue [||]
+        let private data =
+            document.getElementById("data-ui").textContent |> Fable.Core.JS.JSON.parse :?> Types.UI
+
+        let supported = data.supported
+        let defaultUI = data.defaultUI
 
 
 
@@ -74,7 +72,12 @@ module Script =
 
     let toggleUI target =
         let chosenOne = UI.supported |> Array.find (fun x -> x.name = target)
-        (document.getElementById "ui-button").innerHTML <- chosenOne.display
+
+        document.getElementById "ui-button"
+        |> function
+            | x when isNullOrUndefined x -> ()
+            | x -> x.innerHTML <- chosenOne.display
+
         localStorage.setItem ("ui", target)
 
         document.documentElement.getAttribute "ui"

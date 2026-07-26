@@ -2,7 +2,6 @@ namespace FoxBlog.View
 
 open Giraffe.ViewEngine
 open System.IO
-open FoxBlog
 
 module UI =
 

@@ -58,6 +58,9 @@ module Json =
 
     let deserialize<'T> (element: JsonElement) = element.Deserialize<'T>(options)
 
+    let serialize (value: 'T) =
+        JsonSerializer.Serialize(value, options)
+
     let contains (name: string) (element: JsonElement) =
         element.EnumerateObject() |> Seq.exists (fun e -> e.Name.IEquals name)
 

@@ -38,12 +38,6 @@ type Index(context: UI.Context, settings: GlobalSettings, top: Top, side: Side, 
                 | false -> ""
             |> flag
 
-        let supportedUI =
-            context.supported
-            |> List.map (fun x -> $"{x.name}:{x.display}")
-            |> String.concat "|"
-            |> attr "data-ui-supported"
-
-        body [ layout; supportedUI ] [ top; side; main.content ]
+        body [ layout ] [ top; side; main.content ]
 
     member _.Html = html attributes [ head.content; body ]
