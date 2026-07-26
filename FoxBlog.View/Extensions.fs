@@ -1,0 +1,80 @@
+[<AutoOpen>]
+module Extensions
+
+type System.String with
+    member inline this.IEquals other =
+        System.String.Equals(this, other, System.StringComparison.InvariantCultureIgnoreCase)
+
+    member inline this.IEndsWith other =
+        this.EndsWith(other, System.StringComparison.InvariantCultureIgnoreCase)
+
+    member inline this.IStartsWith other =
+        this.StartsWith(other, System.StringComparison.InvariantCultureIgnoreCase)
+
+    member inline this.TrimEnd(other: string) =
+        match this.EndsWith(other) with
+        | true -> this[.. (this.LastIndexOf(other) - 1)]
+        | false -> this
+
+    member inline this.TrimStart(other: string) =
+        match this.StartsWith(other) with
+        | true -> this[(other.Length) ..]
+        | false -> this
+
+module Json =
+    open System.Text.Json.Serialization
+    open System.Text.Json
+    open System.IO
+
+    let options =
+        JsonFSharpOptions
+            .Default()
+            .WithTypes(JsonFSharpTypes.Collections ||| JsonFSharpTypes.OptionalTypes)
+            .ToJsonSerializerOptions()
+        |> fun x ->
+            x.PropertyNameCaseInsensitive <- true
+            x
+
+    let tryParse (reader: byref<Utf8JsonReader>) =
+        JsonElement.TryParseValue(&reader)
+        |> function
+            | false, _ -> None
+            | true, element when element.HasValue |> not -> None
+            | true, element -> Some element.Value
+
+    let tryRead file =
+        if File.Exists file then
+            let bytes = File.ReadAllBytes file
+            let mutable reader = Utf8JsonReader bytes
+
+            try
+                match JsonElement.TryParseValue(&reader) with
+                | true, value -> Some value.Value
+                | false, _ -> None
+            with :? JsonException ->
+                None
+        else
+            None
+
+    let deserialize<'T> (element: JsonElement) = element.Deserialize<'T>(options)
+
+    let contains (name: string) (element: JsonElement) =
+        element.EnumerateObject() |> Seq.exists (fun e -> e.Name.IEquals name)
+
+
+    let tryFind (name: string) (element: JsonElement) =
+        try
+            element.EnumerateObject()
+            |> Seq.tryFind (fun e -> e.Name.IEquals name)
+            |> Option.map _.Value
+        with :? JsonException ->
+            None
+
+    let toMap (element: JsonElement) =
+        element.EnumerateObject() |> Seq.map (fun x -> (x.Name, x.Value)) |> Map.ofSeq
+
+    let list (element: JsonElement) = element.EnumerateArray() |> List.ofSeq
+
+    let defaultWith (value: string) = JsonElement.Parse(value)
+
+    let empty = defaultWith "{}"

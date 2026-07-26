@@ -22,7 +22,8 @@ internal sealed class CategoryContext(IOptionsSnapshot<ContentOptions> options) 
             JsonElement
                 .ParseValue(ref reader)
                 .GetProperty("Categories")
-                .Deserialize<IEnumerable<Category>>() ?? [];
+                .Deserialize<IEnumerable<Category>>()
+            ?? [];
 
         return categories.Select(SetKey);
     }

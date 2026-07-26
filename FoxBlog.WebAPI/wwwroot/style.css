@@ -1,0 +1,112 @@
+nav[data-topnav] {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+
+    button[class="ghost small"] {
+        padding: 1px;
+    }
+
+    >div[right] {
+        gap: 0;
+
+        >* {
+            display: inline-flex;
+        }
+
+        :first-child::before {
+            display: none;
+        }
+
+        >*::before {
+            margin: 0 var(--space-4);
+            width: 1px;
+            content: "";
+            background-color: var(--border);
+        }
+
+        >[links] {
+
+            a,
+            button {
+                color: var(--muted-foreground);
+            }
+        }
+
+        @media (max-width: 768px) {
+            >*::before {
+                margin: 0 var(--space-3);
+            }
+
+            >[links]>menu {
+                display: none;
+            }
+        }
+
+        @media (min-width: 768px) {
+            >[links]>ot-dropdown {
+                display: none;
+            }
+        }
+    }
+
+    >div[left] {
+        display: flex;
+        gap: 0;
+
+        >[data-sidebar-toggle] {
+            display: flex;
+            align-items: stretch;
+            border: none;
+            gap: 0;
+            color: var(--foreground);
+            font-family: var(--font-sans);
+            padding: 0;
+        }
+
+        >[data-sidebar-toggle]::after {
+            margin: 0 var(--space-3);
+            width: 1px;
+            content: "";
+            background-color: var(--border);
+        }
+
+        @media (min-width: 768px) {
+            [data-sidebar-toggle] {
+                display: none;
+            }
+        }
+    }
+}
+
+
+menu.buttons.items-center li {
+    margin-block-end: 0;
+}
+
+html[data-theme="dark"] .icon-light {
+    display: none;
+}
+
+html:not([data-theme="dark"]) .icon-dark {
+    display: none;
+}
+
+#ui-button,
+button[data-ui-menuitem],
+button[data-sidebar-toggle] {
+    font-size: 16px;
+    -ms-align-content: center;
+    -webkit-align-content: center;
+    align-content: center;
+    -ms-flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+
+
+summary {
+    details:not([open]) &:after {
+        transform: none;
+    }
+}

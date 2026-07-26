@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Westwind.AspNetCore.Markdown" Version="3.31.0" />
+    <PackageReference Include="Westwind.AspNetCore.Markdown" Version="3.40.0" />
   </ItemGroup>
 
   <ItemGroup>
