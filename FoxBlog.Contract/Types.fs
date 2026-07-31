@@ -11,3 +11,5 @@ module Types =
 
         static member inline map(ui: 'T when 'T: (member name: string) and 'T: (member display: string)) =
             { name = ui.name; display = ui.display }
+
+    type Link = { name: string; url: string }

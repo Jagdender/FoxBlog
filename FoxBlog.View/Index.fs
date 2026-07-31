@@ -2,7 +2,7 @@ namespace FoxBlog.View
 
 open Giraffe.ViewEngine
 
-type Index(context: UI.Context, settings: GlobalSettings, top: Top, side: Side, main: Main, head: Head) =
+type Index(context: UI.Context, top: Top, side: Side, main: Main, head: Head) =
 
     let attributes =
         match context.current with

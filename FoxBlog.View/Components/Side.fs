@@ -1,21 +1,10 @@
 namespace FoxBlog.View
 
 
-module private SideExtensions =
-    type GlobalSettings with
-        member setting.links =
-            setting.Json
-            |> Json.tryFind "side"
-            |> Option.bind (Json.tryFind "links")
-            |> Option.defaultValue Json.empty
-            |> Json.deserialize<Types.Links>
-            |> _.toList()
-
-
 open Giraffe.ViewEngine
-open SideExtensions
+open FoxBlog.Types
 
-type Side(settings: GlobalSettings, categoriesCtx: Content.Context) =
+type Side(settings: GlobalSettings, content: Content.Context, ui: UI.Context) =
 
     let rec list (source: Content.Category) =
         let posts =
@@ -27,11 +16,13 @@ type Side(settings: GlobalSettings, categoriesCtx: Content.Context) =
 
         posts @ categories
 
+    let links = ui.current |> Option.map _.side.links |> Option.defaultValue []
+
     member _.content =
-        let toLinkBtn (link: Types.Link) =
+        let toLinkBtn link =
             a [ _class "button outline small"; _href link.url ] [ rawText link.name ]
 
         aside
             [ flag "data-sidebar" ]
-            [ nav [] [ ul [] (list categoriesCtx.root) ]
-              footer [ _class "gap-1 vstack" ] (settings.links |> List.map toLinkBtn) ]
+            [ nav [] [ ul [] (list content.root) ]
+              footer [ _class "gap-1 vstack" ] (links |> List.map toLinkBtn) ]

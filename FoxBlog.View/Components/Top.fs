@@ -2,16 +2,7 @@ namespace FoxBlog.View
 
 open Giraffe.ViewEngine
 open Giraffe.ViewEngine.Extensions
-
-module private TopExtensions =
-    type GlobalSettings with
-        member setting.links =
-            setting.Json
-            |> Json.tryFind "top"
-            |> Option.bind (Json.tryFind "links")
-            |> Option.defaultValue Json.empty
-            |> Json.deserialize<Types.Links>
-            |> _.toList()
+open FoxBlog.Types
 
 module private SVG =
     let ThemeBtn =
@@ -36,28 +27,26 @@ module private SVG =
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>
             """
 
+type Top(ui: UI.Context) =
 
-open TopExtensions
-
-
-type Top(context: UI.Context, settings: GlobalSettings) =
+    let links = ui.current |> Option.map _.top.links |> Option.defaultValue []
 
     let fullLinks =
         menu
             [ _class "buttons items-center" ]
-            (settings.links
+            (links
              |> List.map (fun link -> li [] [ a [ _class "button ghost small"; _href link.url ] [ str link.name ] ]))
 
     let dropdownLinks =
         dropdown
             { id = "top-links-menu"
               attributes = [ _class "outline small" ]
-              contents = [ context.node "LINKS"; SVG.LinkBtn ] }
-            (settings.links
+              contents = [ ui.node "LINKS"; SVG.LinkBtn ] }
+            (links
              |> List.map (fun link -> li [] [ a [ attr "role" "menuitem"; _href link.url ] [ str link.name ] ]))
 
     let uis =
-        context.supported
+        ui.supported
         |> List.map (fun ui ->
             a
                 [ attr "role" "menuitem"
@@ -67,7 +56,7 @@ type Top(context: UI.Context, settings: GlobalSettings) =
 
     member _.content =
         let uiBtn =
-            if context.supported.Length <= 1 then
+            if ui.supported.Length <= 1 then
                 span [] []
             else
                 dropdown
@@ -80,16 +69,16 @@ type Top(context: UI.Context, settings: GlobalSettings) =
             span [] [ button [ _class "ghost small"; _onclick "toggleTheme()" ] [ SVG.ThemeBtn ] ]
 
         let linkBtns =
-            match settings.links with
+            match links with
             | [] -> span [] []
             | [ _ ] -> fullLinks
-            | _ when settings.links.Length > 5 -> dropdownLinks
+            | _ when links.Length > 5 -> dropdownLinks
             | _ -> span [ flag "links" ] [ fullLinks; dropdownLinks ]
 
         nav
             [ flag "data-topnav" ]
             [ div
                   [ _class "items-center hstack"; flag "left" ]
-                  [ button [ flag "data-sidebar-toggle" ] [ context.node "MENU" ]
-                    a [ _href "/" ] [ context.node "HOME" ] ]
+                  [ button [ flag "data-sidebar-toggle" ] [ ui.node "MENU" ]
+                    a [ _href "/" ] [ ui.node "HOME" ] ]
               div [ _class "col-end justify-end hstack"; flag "right" ] [ linkBtns; uiBtn; themeBtn ] ]

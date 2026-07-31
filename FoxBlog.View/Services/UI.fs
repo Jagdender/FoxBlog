@@ -2,16 +2,37 @@ namespace FoxBlog.View
 
 open Giraffe.ViewEngine
 open System.IO
+open FoxBlog.Types
 
 module UI =
 
-    type UI =
+    type Type =
         { name: string
           display: string
-          defaultUI: bool
+          top: Section
+          side: Section
           config: System.Text.Json.JsonElement }
 
-    type Context(settings: GlobalSettings, context: ViewContext) =
+    and Section =
+        { links: Link list
+          hidden: bool }
+
+        static member read name uisetting globalsetting =
+            { links =
+                uisetting
+                |> Json.map name
+                |> Option.orElse (globalsetting |> Json.map name)
+                |> Option.bind (Json.map "links")
+                |> Option.map Json.tryDeserialize<Link list>
+                |> Option.defaultValue []
+              hidden = //PERF: eval "hidden" first then skip? "links"
+                uisetting
+                |> Json.map name
+                |> Option.bind (Json.map "hidden")
+                |> Option.map Json.tryDeserialize<bool>
+                |> Option.defaultValue false }
+
+    type Context(settings: GlobalSettings) =
 
         let values =
             settings.Root
@@ -28,27 +49,21 @@ module UI =
             |> Seq.map (fun (name, element) ->
                 { name = name
                   config = element
-                  defaultUI =
-                    element
-                    |> Json.tryFind "default"
-                    |> Option.map Json.deserialize<bool>
-                    |> Option.defaultValue false
                   display =
                     element
-                    |> Json.tryFind "display"
+                    |> Json.map "display"
                     |> Option.map _.ToString()
-                    |> Option.defaultValue (name.ToUpperInvariant()) })
+                    |> Option.defaultValue (name.ToUpperInvariant())
+                  top = Section.read "top" element settings.Json
+                  side = Section.read "side" element settings.Json })
             |> Seq.toList
 
-        member this.current =
-            context.ui
-            |> Option.bind (fun x -> values |> Seq.tryFind _.name.IEquals(x))
-            |> Option.orElse this.defaultUI
+        member val current = None with get, set
 
         member this.str key =
             this.current
-            |> Option.bind (fun x -> x.config |> Json.tryFind "nodes")
-            |> Option.bind (Json.tryFind key >> Option.map _.ToString())
+            |> Option.bind (fun x -> x.config |> Json.map "nodes")
+            |> Option.bind (Json.map key >> Option.map _.ToString())
             |> Option.defaultValue key
 
         member this.node = this.str >> str
@@ -57,11 +72,8 @@ module UI =
 
         member this.asLang =
             this.current
-            |> Option.bind (fun x -> x.config |> Json.tryFind "language")
-            |> Option.map Json.deserialize<bool>
+            |> Option.bind (fun x -> x.config |> Json.map "language")
+            |> Option.map Json.tryDeserialize<bool>
             |> Option.defaultValue false
-
-
-        member _.defaultUI = values |> Seq.tryFind _.defaultUI
 
         member _.supported = values

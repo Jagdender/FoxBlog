@@ -9,18 +9,16 @@
     <Compile Include="GlobalSettings.fs" />
     <Compile Include="ViewEngineExtensions.fs" />
     <Compile Include="Extensions.fs" />
-    <Compile Include="Types.fs" />
 	<Folder Include="Services\" />
-	<Compile Include="Services\ViewContext.fs" />
 	<Compile Include="services\Content.fs" />
     <Compile Include="Services\UI.fs" />
-    <Compile Include="services\Metadata.fs" />
+    <Compile Include="services\Post.fs" />
     <Folder Include="Components\" />
     <Compile Include="components\Head.fs" />
     <Compile Include="components\Main.fs" />
     <Compile Include="components\Side.fs" />
     <Compile Include="components\Top.fs" />
-    <Compile Include="Index.fs" />
+	<Compile Include="Index.fs" />
   </ItemGroup>
 
   <ItemGroup>

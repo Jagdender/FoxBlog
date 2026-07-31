@@ -8,7 +8,6 @@ open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.DependencyInjection
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.Options
-open System.Runtime.CompilerServices
 open System.IO.Compression
 open System.IO
 open System
@@ -34,18 +33,6 @@ type IServiceCollection with
             .Configure(fun (options: GzipCompressionProviderOptions) -> options.Level <- compression)
 
             .AddHttpContextAccessor()
-            .AddScoped<ViewContext>(fun services ->
-                let context = ViewContext()
-
-                context.ui <-
-                    services
-                        .GetRequiredService<IHttpContextAccessor>()
-                        .HttpContext.Request.RouteValues.TryGetValue("ui")
-                    |> function
-                        | true, value -> Some(value.ToString())
-                        | false, _ -> None
-
-                context)
             .AddScoped<Content.Context>()
             .AddScoped<UI.Context>()
 
@@ -56,7 +43,7 @@ type IServiceCollection with
             let configFile =
                 match config with
                 | p when File.Exists p -> p
-                | p when Directory.Exists p -> Path.Combine(p, "global.json")
+                | p when Directory.Exists p -> Path.Combine(p, "global.conf")
                 | _ -> failwith "404"
 
             let element = configFile |> Json.tryRead |> Option.defaultValue Json.empty
@@ -65,3 +52,21 @@ type IServiceCollection with
               Root = Path.GetDirectoryName configFile }
 
         this.Configure<ConfigOptions>(configuration).AddScoped<GlobalSettings>(factory)
+
+
+let createMiddleware x =
+    Func<HttpContext, RequestDelegate, System.Threading.Tasks.Task> x
+
+type PathString with
+    member path.IStartsWithSegments seg =
+        path.StartsWithSegments(seg, StringComparison.InvariantCultureIgnoreCase)
+
+
+type HttpResponse with
+    member response.NotFound =
+        response.StatusCode <- StatusCodes.Status404NotFound
+        response.CompleteAsync()
+
+    member response.RedirectAsync path =
+        response.Redirect path
+        response.CompleteAsync()

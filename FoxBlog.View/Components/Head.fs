@@ -15,7 +15,7 @@ module private Script =
     let withJson id content =
         script [ _id id; _type "application/json" ] [ rawText content ]
 
-type Head(context: UI.Context) =
+type Head(context: UI.Context, settings: GlobalSettings) =
     let misc =
         rawText
             """
@@ -29,7 +29,12 @@ type Head(context: UI.Context) =
 
     let ui =
         { supported = context.supported |> List.map UIdto.map |> List.toArray
-          defaultUI = context.defaultUI |> Option.map UIdto.map }
+          defaultUI =
+            settings.Json
+            |> Json.map "ui"
+            |> Json.bind "default"
+            |> Option.bind (fun x -> context.supported |> List.tryFind (fun e -> e.name = x.ToString()))
+            |> Option.map UIdto.map }
         |> Json.serialize
         |> Script.withJson "data-ui"
 

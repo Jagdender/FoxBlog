@@ -23,7 +23,7 @@ module Program =
 
         app.UseStaticFiles()
 
-        app |> Api.routes.Apply
+        app.Use(Api.routeMiddleware)
 
         app.Run()
 
