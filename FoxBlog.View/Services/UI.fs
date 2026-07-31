@@ -22,14 +22,14 @@ module UI =
                 uisetting
                 |> Json.map name
                 |> Option.orElse (globalsetting |> Json.map name)
-                |> Option.bind (Json.map "links")
-                |> Option.map Json.tryDeserialize<Link list>
+                |> Json.bind "links"
+                |> Option.bind Json.tryDeserialize<Link list>
                 |> Option.defaultValue []
               hidden = //PERF: eval "hidden" first then skip? "links"
                 uisetting
                 |> Json.map name
-                |> Option.bind (Json.map "hidden")
-                |> Option.map Json.tryDeserialize<bool>
+                |> Json.bind "hidden"
+                |> Option.bind Json.tryDeserialize<bool>
                 |> Option.defaultValue false }
 
     type Context(settings: GlobalSettings) =
@@ -73,7 +73,7 @@ module UI =
         member this.asLang =
             this.current
             |> Option.bind (fun x -> x.config |> Json.map "language")
-            |> Option.map Json.tryDeserialize<bool>
+            |> Option.bind Json.tryDeserialize<bool>
             |> Option.defaultValue false
 
         member _.supported = values

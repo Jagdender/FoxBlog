@@ -84,7 +84,11 @@ module Json =
         else
             None
 
-    let tryDeserialize<'T> (element: JsonElement) = element.Deserialize<'T>(options)
+    let tryDeserialize<'T> (element: JsonElement) =
+        try
+            element.Deserialize<'T>(options) |> Some
+        with :? JsonException ->
+            None
 
     let str (element: JsonElement) = element.ToString()
 

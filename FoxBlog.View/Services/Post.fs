@@ -36,8 +36,8 @@ module Post =
                             Option.map (fun file ->
                                 file.FullName
                                 |> Json.tryRead
-                                |> Option.bind (Json.map "name")
-                                |> Option.map Json.tryDeserialize<string>
+                                |> Json.bind "name"
+                                |> Option.bind Json.tryDeserialize<string>
                                 |> Option.defaultValue (name file.Name)
                                 |> (fun x -> { ui = None; name = x }))
                         )
