@@ -6,6 +6,8 @@ open FoxBlog.Types
 
 type Side(settings: GlobalSettings, content: Content.Context, ui: UI.Context) =
 
+    let side = ui.current |> Option.bind _.side
+
     let rec list (source: Content.Category) =
         let posts =
             source.posts |> List.map (fun x -> li [] [ a [ _href x.path ] [ str x.name ] ])
@@ -16,13 +18,17 @@ type Side(settings: GlobalSettings, content: Content.Context, ui: UI.Context) =
 
         posts @ categories
 
-    let links = ui.current |> Option.map _.side.links |> Option.defaultValue []
+    let links = side |> Option.map _.links |> Option.defaultValue []
 
     member _.content =
-        let toLinkBtn link =
-            a [ _class "button outline small"; _href link.url ] [ rawText link.name ]
+        if Option.isNone side then
+            str ""
+        else
 
-        aside
-            [ flag "data-sidebar" ]
-            [ nav [] [ ul [] (list content.root) ]
-              footer [ _class "gap-1 vstack" ] (links |> List.map toLinkBtn) ]
+            let toLinkBtn link =
+                a [ _class "button outline small"; _href link.url ] [ rawText link.name ]
+
+            aside
+                [ flag "data-sidebar" ]
+                [ nav [] [ ul [] (list content.root) ]
+                  footer [ _class "gap-1 vstack" ] (links |> List.map toLinkBtn) ]

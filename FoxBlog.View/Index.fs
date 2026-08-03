@@ -10,34 +10,14 @@ type Index(context: UI.Context, top: Top, side: Side, main: Main, head: Head) =
         | Some ui when context.asLang -> [ attr "ui" ui.name; attr "lang" ui.name ]
         | Some ui -> [ attr "ui" ui.name ]
 
-
-
     let body =
-        let top =
-            context.current
-            |> Option.map (fun x -> x.config |> Json.contains "top")
-            |> Option.defaultValue false
-            |> function
-                | true -> top.content
-                | false -> str ""
-
-        let side =
-            context.current
-            |> Option.map (fun x -> x.config |> Json.contains "side")
-            |> Option.defaultValue false
-            |> function
-                | true -> side.content
-                | false -> str ""
-
         let layout =
             context.current
-            |> Option.map (fun x -> x.config |> Json.contains "side")
-            |> Option.defaultValue false
-            |> function
-                | true -> "data-sidebar-layout"
-                | false -> ""
+            |> Option.bind _.side
+            |> Option.map (fun _ -> "data-sidebar-layout")
+            |> Option.defaultValue ""
             |> flag
 
-        body [ layout ] [ top; side; main.content ]
+        body [ layout ] [ top.content; side.content; main.content ]
 
     member _.Html = html attributes [ head.content; body ]

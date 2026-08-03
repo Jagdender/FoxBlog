@@ -6,9 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="GlobalSettings.fs" />
     <Compile Include="ViewEngineExtensions.fs" />
     <Compile Include="Extensions.fs" />
+    <Compile Include="GlobalSettings.fs" />
 	<Folder Include="Services\" />
 	<Compile Include="services\Content.fs" />
     <Compile Include="Services\UI.fs" />

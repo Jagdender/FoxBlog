@@ -29,21 +29,23 @@ module private SVG =
 
 type Top(ui: UI.Context) =
 
-    let links = ui.current |> Option.map _.top.links |> Option.defaultValue []
+    let top = ui.current |> Option.bind _.top
+
+    let links = top |> Option.map _.links |> Option.defaultValue []
 
     let fullLinks =
-        menu
-            [ _class "buttons items-center" ]
-            (links
-             |> List.map (fun link -> li [] [ a [ _class "button ghost small"; _href link.url ] [ str link.name ] ]))
+        links
+        |> List.map (fun link -> li [] [ a [ _class "button ghost small"; _href link.url ] [ str link.name ] ])
+        |> menu [ _class "buttons items-center" ]
 
     let dropdownLinks =
-        dropdown
+        links
+        |> List.map (fun link -> li [] [ a [ attr "role" "menuitem"; _href link.url ] [ str link.name ] ])
+        |> dropdown
             { id = "top-links-menu"
               attributes = [ _class "outline small" ]
               contents = [ ui.node "LINKS"; SVG.LinkBtn ] }
-            (links
-             |> List.map (fun link -> li [] [ a [ attr "role" "menuitem"; _href link.url ] [ str link.name ] ]))
+
 
     let uis =
         ui.supported
@@ -55,30 +57,33 @@ type Top(ui: UI.Context) =
                 [ rawText (ui.display) ])
 
     member _.content =
-        let uiBtn =
-            if ui.supported.Length <= 1 then
-                span [] []
-            else
-                dropdown
-                    { id = "ui-menu"
-                      attributes = [ _class "ghost small"; _id "ui-button" ]
-                      contents = [] }
-                    uis
+        if Option.isNone top then
+            str ""
+        else
+            let uiBtn =
+                if ui.supported.Length <= 1 then
+                    span [] []
+                else
+                    dropdown
+                        { id = "ui-menu"
+                          attributes = [ _class "ghost small"; _id "ui-button" ]
+                          contents = [] }
+                        uis
 
-        let themeBtn =
-            span [] [ button [ _class "ghost small"; _onclick "toggleTheme()" ] [ SVG.ThemeBtn ] ]
+            let themeBtn =
+                span [] [ button [ _class "ghost small"; _onclick "toggleTheme()" ] [ SVG.ThemeBtn ] ]
 
-        let linkBtns =
-            match links with
-            | [] -> span [] []
-            | [ _ ] -> fullLinks
-            | _ when links.Length > 5 -> dropdownLinks
-            | _ -> span [ flag "links" ] [ fullLinks; dropdownLinks ]
+            let linkBtns =
+                match links with
+                | [] -> span [] []
+                | [ _ ] -> fullLinks
+                | _ when links.Length > 5 -> dropdownLinks
+                | _ -> span [ flag "links" ] [ fullLinks; dropdownLinks ]
 
-        nav
-            [ flag "data-topnav" ]
-            [ div
-                  [ _class "items-center hstack"; flag "left" ]
-                  [ button [ flag "data-sidebar-toggle" ] [ ui.node "MENU" ]
-                    a [ _href "/" ] [ ui.node "HOME" ] ]
-              div [ _class "col-end justify-end hstack"; flag "right" ] [ linkBtns; uiBtn; themeBtn ] ]
+            nav
+                [ flag "data-topnav" ]
+                [ div
+                      [ _class "items-center hstack"; flag "left" ]
+                      [ button [ flag "data-sidebar-toggle" ] [ ui.node "MENU" ]
+                        a [ _href "/" ] [ ui.node "HOME" ] ]
+                  div [ _class "col-end justify-end hstack"; flag "right" ] [ linkBtns; uiBtn; themeBtn ] ]

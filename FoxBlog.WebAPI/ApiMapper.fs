@@ -52,10 +52,6 @@ let routeMiddleware =
 
         ui.supported
         |> List.tryFind (fun x -> context.Request.Path.StartsWithSegments $"/{x.name}")
-        |> Option.map _.display
-        |> Option.defaultValue (context.Request.Path.ToString())
-        |> printf "%s\n"
-
-
+        |> (fun x -> ui.current <- x)
 
         request.Invoke context)

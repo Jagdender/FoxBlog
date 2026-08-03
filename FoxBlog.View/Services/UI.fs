@@ -5,32 +5,38 @@ open System.IO
 open FoxBlog.Types
 
 module UI =
+    let private read name settings element =
+        element
+        |> Json.map name
+        |> Option.orElse (settings.Json |> Json.mapMany [ "ui"; name ])
+        |> Option.bind Json.tryDeserialize
 
     type Type =
         { name: string
           display: string
-          top: Section
-          side: Section
-          config: System.Text.Json.JsonElement }
-
-    and Section =
-        { links: Link list
+          top: Section option
+          side: Section option
+          node: NodeMap
+          language: bool
           hidden: bool }
 
-        static member read name uisetting globalsetting =
-            { links =
-                uisetting
-                |> Json.map name
-                |> Option.orElse (globalsetting |> Json.map name)
-                |> Json.bind "links"
-                |> Option.bind Json.tryDeserialize<Link list>
-                |> Option.defaultValue []
-              hidden = //PERF: eval "hidden" first then skip? "links"
-                uisetting
-                |> Json.map name
-                |> Json.bind "hidden"
-                |> Option.bind Json.tryDeserialize<bool>
-                |> Option.defaultValue false }
+    and NodeMap = string -> string
+
+    and Section =
+        { links: Link list }
+
+        static member read name settings element =
+            read name settings element
+            |> Option.defaultValue false
+            |> function
+                | true -> None
+                | false ->
+                    { links =
+                        read name settings element
+                        |> Json.bind "links"
+                        |> Option.bind Json.tryDeserialize<Link list>
+                        |> Option.defaultValue [] }
+                    |> Some
 
     type Context(settings: GlobalSettings) =
 
@@ -47,33 +53,26 @@ module UI =
             )
             |> Option.defaultValue Seq.empty
             |> Seq.map (fun (name, element) ->
+                let read name = read name settings element
+
                 { name = name
-                  config = element
-                  display =
-                    element
-                    |> Json.map "display"
-                    |> Option.map _.ToString()
-                    |> Option.defaultValue (name.ToUpperInvariant())
-                  top = Section.read "top" element settings.Json
-                  side = Section.read "side" element settings.Json })
+                  language = read "language" |> Option.defaultValue false
+                  hidden = read "hidden" |> Option.defaultValue false
+                  display = read "display" |> Option.defaultValue (name.ToUpperInvariant())
+                  top = Section.read "top" settings element
+                  side = Section.read "side" settings element
+                  node = fun x -> read "nodes" |> Json.bind x |> Option.map Json.str |> Option.defaultValue x })
             |> Seq.toList
 
-        member val current = None with get, set
+        member val current: Type option = None with get, set
 
         member this.str key =
-            this.current
-            |> Option.bind (fun x -> x.config |> Json.map "nodes")
-            |> Option.bind (Json.map key >> Option.map _.ToString())
-            |> Option.defaultValue key
+            this.current |> Option.map _.node(key) |> Option.defaultValue key
 
         member this.node = this.str >> str
 
         member this.attr attrName = this.str >> (attr attrName)
 
-        member this.asLang =
-            this.current
-            |> Option.bind (fun x -> x.config |> Json.map "language")
-            |> Option.bind Json.tryDeserialize<bool>
-            |> Option.defaultValue false
+        member this.asLang = this.current |> Option.map _.language |> Option.defaultValue false
 
         member _.supported = values
