@@ -16,23 +16,26 @@ module UI =
           display: string
           top: Section option
           side: Section option
-          node: NodeMap
+          node: string -> string
           language: bool
           hidden: bool }
 
-    and NodeMap = string -> string
 
     and Section =
         { links: Link list }
 
         static member read name settings element =
-            read name settings element
+            let element = read name settings element
+
+            element
+            |> Json.bind "hidden"
+            |> Option.bind Json.tryDeserialize<bool>
             |> Option.defaultValue false
             |> function
                 | true -> None
                 | false ->
                     { links =
-                        read name settings element
+                        element
                         |> Json.bind "links"
                         |> Option.bind Json.tryDeserialize<Link list>
                         |> Option.defaultValue [] }

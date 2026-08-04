@@ -18,12 +18,11 @@ type Side(settings: GlobalSettings, content: Content.Context, ui: UI.Context) =
 
         posts @ categories
 
-    let links = side |> Option.map _.links |> Option.defaultValue []
 
     member _.content =
-        if Option.isNone side then
-            str ""
-        else
+        match side with
+        | None -> str ""
+        | Some side ->
 
             let toLinkBtn link =
                 a [ _class "button outline small"; _href link.url ] [ rawText link.name ]
@@ -31,4 +30,4 @@ type Side(settings: GlobalSettings, content: Content.Context, ui: UI.Context) =
             aside
                 [ flag "data-sidebar" ]
                 [ nav [] [ ul [] (list content.root) ]
-                  footer [ _class "gap-1 vstack" ] (links |> List.map toLinkBtn) ]
+                  footer [ _class "gap-1 vstack" ] (side.links |> List.map toLinkBtn) ]
