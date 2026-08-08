@@ -13,12 +13,11 @@ module UI =
     type Global.Settings with
         member settings.defaultUI = settings.Json |> Json.map "default" |> Option.map Json.str
 
-    type Type =
-        { name: string
-          display: string
+    type UI =
+        { display: string
           top: Section option
           side: Section option
-          node: string -> string
+          nodes: Map<string, string>
           language: bool
           hidden: bool }
 
@@ -50,8 +49,8 @@ module UI =
             |> Directory.EnumerateDirectories
             |> Seq.tryFind (Path.GetFileName >> _.IEquals("ui"))
             |> Option.map (
-                Directory.EnumerateFiles
-                >> Seq.filter (Path.GetExtension >> _.IEquals(".conf"))
+                Directory.EnumerateFiles // TODO: more extensions support
+                >> Seq.distinctBy Path.GetFileNameWithoutExtension // NOTE: no guarantee for multi configs to the same ui
                 >> Seq.map (fun x ->
                     (Path.GetFileNameWithoutExtension(x).ToLowerInvariant(),
                      Json.tryRead x |> Option.defaultValue Json.empty))
@@ -60,24 +59,28 @@ module UI =
             |> Seq.map (fun (name, element) ->
                 let read name = read name settings element
 
-                { name = name
-                  language = read "language" |> Option.defaultValue false
+                name,
+                { language = read "language" |> Option.defaultValue false
                   hidden = read "hidden" |> Option.defaultValue false
                   display = read "display" |> Option.defaultValue (name.ToUpperInvariant())
                   top = Section.read "top" settings element
                   side = Section.read "side" settings element
-                  node = fun x -> read "nodes" |> Json.bind x |> Option.map Json.str |> Option.defaultValue x })
-            |> Seq.toList
+                  nodes =
+                    read "nodes"
+                    |> Option.map (Json.toMap >> Map.map (fun _ y -> Json.str y))
+                    |> Option.defaultValue Map.empty })
+            |> Map.ofSeq
 
-        member val current: Type option = None with get, set
+        member val current: string option = None with get, set
+
+        member this.currentUI =
+            this.current |> Option.bind (fun x -> this.supported |> Map.tryFind x)
 
         member this.str key =
-            this.current |> Option.map _.node(key) |> Option.defaultValue key
+            this.currentUI |> Option.bind _.nodes.TryFind(key) |> Option.defaultValue key
 
         member this.node = this.str >> str
 
         member this.attr attrName = this.str >> (attr attrName)
-
-        member this.asLang = this.current |> Option.map _.language |> Option.defaultValue false
 
         member _.supported = values

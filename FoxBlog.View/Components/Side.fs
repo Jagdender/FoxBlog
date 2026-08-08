@@ -5,7 +5,7 @@ open Giraffe.ViewEngine
 
 type Side(settings: Global.Settings, content: Content.Context, ui: UI.Context) =
 
-    let side = ui.current |> Option.bind _.side
+    let side = ui.currentUI |> Option.bind _.side
 
     let rec list (source: Content.Category) =
         let posts =

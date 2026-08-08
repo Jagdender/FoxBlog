@@ -53,8 +53,8 @@ let routeMiddleware =
         let content = context.RequestServices.GetRequiredService<Content.Context>()
 
         ui.supported
-        |> List.tryFind (fun x -> context.Request.Path.StartsWithSegments $"/{x.name}")
-        |> (fun x -> ui.current <- x)
+        |> Map.tryFindKey (fun name _ -> context.Request.Path.StartsWithSegments $"/{name}")
+        |> fun name -> ui.current <- name
 
 
 

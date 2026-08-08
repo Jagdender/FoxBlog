@@ -7,12 +7,15 @@ type Index(context: UI.Context, top: Top, side: Side, main: Main, head: Head) =
     let attributes =
         match context.current with
         | None -> [ flag "" ]
-        | Some ui when context.asLang -> [ attr "ui" ui.name; attr "lang" ui.name ]
-        | Some ui -> [ attr "ui" ui.name ]
+        | Some value ->
+            [ yield attr "ui" value
+              match context.currentUI with
+              | Some ui when ui.language -> yield attr "lang" value
+              | _ -> () ]
 
     let body =
         let layout =
-            context.current
+            context.currentUI
             |> Option.bind _.side
             |> Option.map (fun _ -> "data-sidebar-layout")
             |> Option.defaultValue ""
