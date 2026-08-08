@@ -11,7 +11,7 @@ module Content =
           categories: Category list
           posts: Post list }
 
-    type Context(settings: GlobalSettings) =
+    type Context(settings: Global.Settings) =
         let directory =
             settings.Root
             |> Directory.EnumerateDirectories
@@ -58,6 +58,10 @@ module Content =
             { name = Path.GetFileName path
               categories = categories
               posts = posts }
+
+        member val path = "/" with get, set
+
+        member val current: Post option = None with get, set
 
         member _.root =
             directory

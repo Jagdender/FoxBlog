@@ -25,32 +25,25 @@ module Post =
             type private DicContext = { ui: string option; name: string }
 
 
-            let rec private enumerate (dic: DirectoryInfo) (context: DicContext) =
-                seq {
-                    let dictionaries = dic.EnumerateDirectories()
-
-                    let contexts =
-                        dictionaries
-                        |> Seq.map (fun x -> dic.EnumerateFiles() |> Seq.tryFind _.Name.IEquals($"{x.Name}.json"))
-                        |> Seq.map (
-                            Option.map (fun file ->
-                                file.FullName
-                                |> Json.tryRead
-                                |> Json.bind "name"
-                                |> Option.bind Json.tryDeserialize<string>
-                                |> Option.defaultValue (name file.Name)
-                                |> (fun x -> { ui = None; name = x }))
-                        )
-                        |> Seq.map (Option.defaultValue { ui = None; name = "" })
-
-                    yield! contexts
-                }
+            let private enumerate (dic: DirectoryInfo) =
+                dic.EnumerateDirectories()
+                |> Seq.map (fun x -> dic.EnumerateFiles() |> Seq.tryFind _.Name.IEquals($"{x.Name}.json"))
+                |> Seq.map (
+                    Option.map (fun file ->
+                        file.FullName
+                        |> Json.tryRead
+                        |> Json.bind "name"
+                        |> Option.bind Json.tryDeserialize<string>
+                        |> Option.defaultValue (name file.Name)
+                        |> (fun x -> { ui = None; name = x }))
+                )
+                |> Seq.map (Option.defaultValue { ui = None; name = "" })
 
 
 
 
 
-        type Context(settings: GlobalSettings, ui: UI.Context) =
+        type Context(settings: Global.Settings, ui: UI.Context) =
 
             let directory =
                 settings.Root

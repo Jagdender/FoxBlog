@@ -2,14 +2,16 @@ namespace FoxBlog.View
 
 open Giraffe.ViewEngine
 open System.IO
-open FoxBlog.Types
 
 module UI =
-    let private read name settings element =
+    let private read name (settings: Global.Settings) element =
         element
         |> Json.map name
         |> Option.orElse (settings.Json |> Json.mapMany [ "ui"; name ])
         |> Option.bind Json.tryDeserialize
+
+    type Global.Settings with
+        member settings.defaultUI = settings.Json |> Json.map "default" |> Option.map Json.str
 
     type Type =
         { name: string
@@ -22,7 +24,7 @@ module UI =
 
 
     and Section =
-        { links: Link list }
+        { links: Types.Link list }
 
         static member read name settings element =
             let element = read name settings element
@@ -37,11 +39,11 @@ module UI =
                     { links =
                         element
                         |> Json.bind "links"
-                        |> Option.bind Json.tryDeserialize<Link list>
+                        |> Option.bind Json.tryDeserialize<Types.Link list>
                         |> Option.defaultValue [] }
                     |> Some
 
-    type Context(settings: GlobalSettings) =
+    type Context(settings: Global.Settings) =
 
         let values =
             settings.Root

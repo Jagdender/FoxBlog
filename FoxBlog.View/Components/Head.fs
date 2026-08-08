@@ -1,7 +1,6 @@
 namespace FoxBlog.View
 
 open Giraffe.ViewEngine
-open FoxBlog.Types
 
 module private Meta =
 
@@ -15,7 +14,7 @@ module private Script =
     let withJson id content =
         script [ _id id; _type "application/json" ] [ rawText content ]
 
-type Head(context: UI.Context, settings: GlobalSettings) =
+type Head(context: UI.Context, settings: Global.Settings) =
     let misc =
         rawText
             """
@@ -27,16 +26,4 @@ type Head(context: UI.Context, settings: GlobalSettings) =
             <script type="module" src="/main.js" defer></script>
             """
 
-    let ui =
-        { supported = context.supported |> List.map UIdto.map |> List.toArray
-          defaultUI =
-            settings.Json
-            |> Json.map "ui"
-            |> Json.bind "default"
-            |> Option.bind (fun x -> context.supported |> List.tryFind (fun e -> e.name = x.ToString()))
-            |> Option.map UIdto.map }
-        |> Json.serialize
-        |> Script.withJson "data-ui"
-
-
-    member _.content = head [] [ misc; ui; title [] [] ]
+    member _.content = head [] [ misc; title [] [] ]

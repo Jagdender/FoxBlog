@@ -2,9 +2,9 @@ namespace FoxBlog.View
 
 
 open Giraffe.ViewEngine
-open FoxBlog.Types
+open Types
 
-type Side(settings: GlobalSettings, content: Content.Context, ui: UI.Context) =
+type Side(settings: Global.Settings, content: Content.Context, ui: UI.Context) =
 
     let side = ui.current |> Option.bind _.side
 

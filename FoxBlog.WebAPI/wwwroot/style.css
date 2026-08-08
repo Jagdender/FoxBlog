@@ -93,8 +93,7 @@ html:not([data-theme="dark"]) .icon-dark {
 	display: none;
 }
 
-#ui-button,
-button[data-ui-menuitem],
+button[ui],
 button[data-sidebar-toggle] {
 	font-size: 16px;
 	-ms-align-content: center;

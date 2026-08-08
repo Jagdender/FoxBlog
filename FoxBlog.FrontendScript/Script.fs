@@ -1,10 +1,7 @@
 ﻿namespace FoxBlog.Frontend
 
-open FoxBlog
-
 module Script =
     open Browser
-    open System
     open Fable.Core.JsInterop
 
     [<AutoOpen>]
@@ -44,18 +41,9 @@ module Script =
             |> Array.tryFind (fun meta -> meta.getAttribute "property" = property)
             |> Option.map (fun meta -> meta.getAttribute "content")
 
-    module private UI =
-
-        let private data =
-            document.getElementById("data-ui").textContent |> Fable.Core.JS.JSON.parse :?> Types.UI
-
-        let supported = data.supported
-        let defaultUI = data.defaultUI
 
 
 
-
-    let redirect url = window.location.href <- url
 
     let toggleTheme () =
         let theme =
@@ -69,40 +57,6 @@ module Script =
         html.dataset.set "theme" theme
         localStorage.setItem ("theme", theme)
 
-
-    let toggleUI target =
-        let chosenOne = UI.supported |> Array.find (fun x -> x.name = target)
-
-        document.getElementById "ui-button"
-        |> function
-            | x when isNullOrUndefined x -> ()
-            | x -> x.innerHTML <- chosenOne.display
-
-        localStorage.setItem ("ui", target)
-
-        document.documentElement.getAttribute "ui"
-        |> function
-            | current when not (current = target) || isNullOrUndefined (current) ->
-                let parts =
-                    window.location.pathname.Split('/', StringSplitOptions.RemoveEmptyEntries)
-
-                let pathname =
-                    parts
-                    |> Array.tryItem 0
-                    |> Option.map (fun x -> x.Equals(current, StringComparison.InvariantCultureIgnoreCase))
-                    |> Option.defaultValue (false)
-                    |> function
-                        | false -> parts |> Array.insertAt 0 target
-                        | true ->
-                            parts[0] <- target
-                            parts
-                    |> String.concat "/"
-
-                window.location.pathname <- pathname
-
-            | _ -> ()
-
-
     module private StartUp =
         let initTheme =
             localStorage.getItem "theme"
@@ -110,9 +64,3 @@ module Script =
                 let html = document.documentElement
                 html?style?colorScheme <- theme
                 html.setAttribute ("data-theme", theme)
-
-        let initUI =
-            document.documentElement.getAttribute "ui"
-            |> function
-                | x when isNullOrUndefined (x) -> ()
-                | x -> toggleUI (x)

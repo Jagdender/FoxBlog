@@ -33,8 +33,8 @@ type IServiceCollection with
             .Configure(fun (options: GzipCompressionProviderOptions) -> options.Level <- compression)
 
             .AddHttpContextAccessor()
-            .AddScoped<Content.Context>()
             .AddScoped<UI.Context>()
+            .AddScoped<Content.Context>()
 
     member this.ConfigureGlobalSettings(configuration: IConfiguration) =
         let factory (sp: IServiceProvider) =
@@ -43,15 +43,22 @@ type IServiceCollection with
             let configFile =
                 match config with
                 | p when File.Exists p -> p
-                | p when Directory.Exists p -> Path.Combine(p, "global.conf")
+                | p when Directory.Exists p ->
+                    p
+                    |> Directory.EnumerateFiles // OPTIMIZE: more extensions support
+                    |> Seq.tryFind (Path.GetFileNameWithoutExtension >> _.IStartsWith(Global.Filename))
+                    |> function
+                        | None -> failwith "404"
+                        | Some n -> n
                 | _ -> failwith "404"
 
             let element = configFile |> Json.tryRead |> Option.defaultValue Json.empty
 
             { Json = element
               Root = Path.GetDirectoryName configFile }
+            : Global.Settings
 
-        this.Configure<ConfigOptions>(configuration).AddScoped<GlobalSettings>(factory)
+        this.Configure<ConfigOptions>(configuration).AddScoped<Global.Settings>(factory)
 
 
 let createMiddleware x =

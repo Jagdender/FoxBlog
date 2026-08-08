@@ -49,9 +49,13 @@ let routes =
 let routeMiddleware =
     createMiddleware (fun context request ->
         let ui = context.RequestServices.GetRequiredService<UI.Context>()
+        let settings = context.RequestServices.GetRequiredService<Global.Settings>()
+        let content = context.RequestServices.GetRequiredService<Content.Context>()
 
         ui.supported
         |> List.tryFind (fun x -> context.Request.Path.StartsWithSegments $"/{x.name}")
         |> (fun x -> ui.current <- x)
+
+
 
         request.Invoke context)

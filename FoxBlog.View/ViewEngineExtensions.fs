@@ -1,14 +1,14 @@
 namespace Giraffe.ViewEngine
 
 module Extensions =
-    type DropdownBtn =
-        { id: string
-          attributes: XmlAttribute list
-          contents: XmlNode list }
 
-    let dropdown (btn: DropdownBtn) (options: XmlNode list) =
+    let dropdown (attributes: XmlAttribute list) (content: XmlNode list) (options: XmlNode list) =
+        let id = System.Guid.NewGuid().ToString()
+
         tag
             "ot-dropdown"
             []
-            [ button ([ attr "popovertarget" btn.id ] @ btn.attributes) btn.contents
-              menu [ _id btn.id; flag "popover" ] options ]
+            [ button ([ attr "popovertarget" id ] @ attributes) content
+              menu [ _id id; flag "popover" ] options ]
+
+    let role value = attr "role" value

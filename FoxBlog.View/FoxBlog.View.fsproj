@@ -6,9 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Types.fs" />
     <Compile Include="ViewEngineExtensions.fs" />
     <Compile Include="Extensions.fs" />
-    <Compile Include="GlobalSettings.fs" />
+    <Compile Include="Global.fs" />
 	<Folder Include="Services\" />
 	<Compile Include="services\Content.fs" />
     <Compile Include="Services\UI.fs" />
@@ -26,9 +27,4 @@
 	<PackageReference Include="FSharp.SystemTextJson" Version="1.4.36" />
 	<PackageReference Include="Giraffe.ViewEngine" Version="1.4.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\FoxBlog.Contract\FoxBlog.Contract.fsproj" />
-  </ItemGroup>
-
 </Project>

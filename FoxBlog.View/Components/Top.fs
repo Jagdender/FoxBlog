@@ -2,7 +2,6 @@ namespace FoxBlog.View
 
 open Giraffe.ViewEngine
 open Giraffe.ViewEngine.Extensions
-open FoxBlog.Types
 
 module private SVG =
     let ThemeBtn =
@@ -27,7 +26,7 @@ module private SVG =
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>
             """
 
-type Top(ui: UI.Context) =
+type Top(ui: UI.Context, content: Content.Context) =
 
     let top = ui.current |> Option.bind _.top
 
@@ -40,42 +39,33 @@ type Top(ui: UI.Context) =
 
     let dropdownLinks =
         links
-        |> List.map (fun link -> li [] [ a [ attr "role" "menuitem"; _href link.url ] [ str link.name ] ])
-        |> dropdown
-            { id = "top-links-menu"
-              attributes = [ _class "outline small" ]
-              contents = [ ui.node "LINKS"; SVG.LinkBtn ] }
+        |> List.map (fun link -> a [ role "menuitem"; _href link.url ] [ str link.name ])
+        |> dropdown [ _class "outline small" ] [ ui.node "LINKS"; SVG.LinkBtn ]
 
-
-    let uis =
-        ui.supported
-        |> List.map (fun ui ->
-            a
-                [ attr "role" "menuitem"
-                  attr "data-ui-menuitem" ui.name
-                  _onclick $"toggleUI('{ui.name}')" ]
-                [ rawText (ui.display) ])
 
     member _.content =
         if Option.isNone top then
             str ""
         else
+
+            let redirect ui = $"/{ui}{content.path}"
+
             let uiBtn =
-                if ui.supported.Length <= 1 then
-                    span [] []
-                else
-                    dropdown
-                        { id = "ui-menu"
-                          attributes = [ _class "ghost small"; _id "ui-button" ]
-                          contents = [] }
-                        uis
+                ui.current
+                |> Option.map (fun x -> [ str x.display ])
+                |> Option.defaultValue []
+                |> dropdown [ _class "ghost small"; flag "ui" ]
+                |> fun x ->
+                    ui.supported
+                    |> List.map (fun x -> a [ role "menuitem"; _href (redirect x.name) ] [ str x.display ])
+                    |> x
 
             let themeBtn =
                 span [] [ button [ _class "ghost small"; _onclick "toggleTheme()" ] [ SVG.ThemeBtn ] ]
 
             let linkBtns =
                 match links with
-                | [] -> span [] []
+                | [] -> str ""
                 | [ _ ] -> fullLinks
                 | _ when links.Length > 5 -> dropdownLinks
                 | _ -> span [ flag "links" ] [ fullLinks; dropdownLinks ]

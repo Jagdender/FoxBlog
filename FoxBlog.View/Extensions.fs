@@ -25,7 +25,7 @@ module Json =
     open System.Text.Json.Serialization
     open System.Text.Json
     open System.IO
-    open FoxBlog.Types
+    open FoxBlog.View.Types
 
     let tryParse (reader: byref<Utf8JsonReader>) =
         JsonElement.TryParseValue(&reader)
