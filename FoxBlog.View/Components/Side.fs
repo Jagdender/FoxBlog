@@ -2,7 +2,6 @@ namespace FoxBlog.View
 
 
 open Giraffe.ViewEngine
-open Types
 
 type Side(settings: Global.Settings, content: Content.Context, ui: UI.Context) =
 
@@ -24,7 +23,7 @@ type Side(settings: Global.Settings, content: Content.Context, ui: UI.Context) =
         | None -> str ""
         | Some side ->
 
-            let toLinkBtn link =
+            let toLinkBtn (link: Types.Link) =
                 a [ _class "button outline small"; _href link.url ] [ rawText link.name ]
 
             aside
