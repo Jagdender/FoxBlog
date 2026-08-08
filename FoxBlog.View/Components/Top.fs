@@ -28,7 +28,7 @@ module private SVG =
 
 type Top(ui: UI.Context, content: Content.Context) =
 
-    let top = ui.current |> Option.bind _.top
+    let top = ui.currentUI |> Option.bind _.top
 
     let links = top |> Option.map _.links |> Option.defaultValue []
 
@@ -51,13 +51,15 @@ type Top(ui: UI.Context, content: Content.Context) =
             let redirect ui = $"/{ui}{content.path}"
 
             let uiBtn =
-                ui.current
+                ui.currentUI
                 |> Option.map (fun x -> [ str x.display ])
                 |> Option.defaultValue []
                 |> dropdown [ _class "ghost small"; flag "ui" ]
                 |> fun x ->
                     ui.supported
-                    |> List.map (fun x -> a [ role "menuitem"; _href (redirect x.name) ] [ str x.display ])
+                    |> Map.toSeq
+                    |> Seq.map (fun (name, ui) -> a [ role "menuitem"; _href (redirect name) ] [ str ui.display ])
+                    |> Seq.toList
                     |> x
 
             let themeBtn =
