@@ -3,7 +3,7 @@ nav[data-topnav] {
 	flex-wrap: wrap;
 	justify-content: space-between;
 
-	button[class="ghost small"] {
+	button.ghost {
 		padding: 1px;
 	}
 
