@@ -45,22 +45,32 @@ type Top(ui: UI.Context, content: Content.Context) =
 
     member _.content =
         if Option.isNone top then
-            str ""
+            emptyText
         else
-
-            let redirect ui = $"/{ui}{content.path}"
 
             let uiBtn =
                 ui.currentUI
-                |> Option.map (fun x -> [ str x.display ])
-                |> Option.defaultValue []
-                |> dropdown [ _class "ghost small"; flag "ui" ]
-                |> fun x ->
-                    ui.supported
-                    |> Map.toSeq
-                    |> Seq.map (fun (name, ui) -> a [ role "menuitem"; _href (redirect name) ] [ str ui.display ])
-                    |> Seq.toList
-                    |> x
+                |> Option.bind _.display
+                |> Option.orElse ui.current
+                |> Option.map (
+                    _.ToUpperInvariant()
+                    >> str
+                    >> List.singleton
+                    >> dropdown [ _class "ghost small"; flag "ui" ]
+                    >> fun x ->
+                        ui.supported
+                        |> Map.toSeq
+                        |> Seq.map (fun (name, ui) ->
+                            a
+                                [ role "menuitem"; _href ($"/{name}{content.path}") ]
+                                [ ui.display |> Option.defaultValue name |> _.ToUpperInvariant() |> str ])
+                        |> Seq.toList
+                        |> x
+                )
+                |> Option.defaultValue emptyText
+
+
+
 
             let themeBtn =
                 span [] [ button [ _class "ghost small"; _onclick "toggleTheme()" ] [ SVG.ThemeBtn ] ]

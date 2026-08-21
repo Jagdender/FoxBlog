@@ -2,6 +2,7 @@ namespace FoxBlog.View
 
 open Giraffe.ViewEngine
 open System.IO
+open Types
 
 module UI =
     let private read name (settings: Global.Settings) element =
@@ -9,38 +10,6 @@ module UI =
         |> Json.map name
         |> Option.orElse (settings.Json |> Json.mapMany [ "ui"; name ])
         |> Option.bind Json.tryDeserialize
-
-    type Global.Settings with
-        member settings.defaultUI = settings.Json |> Json.map "default" |> Option.map Json.str
-
-    type UI =
-        { display: string
-          top: Section option
-          side: Section option
-          nodes: Map<string, string>
-          language: bool
-          hidden: bool }
-
-
-    and Section =
-        { links: Types.Link list }
-
-        static member read name settings element =
-            let element = read name settings element
-
-            element
-            |> Json.bind "hidden"
-            |> Option.bind Json.tryDeserialize<bool>
-            |> Option.defaultValue false
-            |> function
-                | true -> None
-                | false ->
-                    { links =
-                        element
-                        |> Json.bind "links"
-                        |> Option.bind Json.tryDeserialize<Types.Link list>
-                        |> Option.defaultValue [] }
-                    |> Some
 
     type Context(settings: Global.Settings) =
 
@@ -57,21 +26,27 @@ module UI =
             )
             |> Option.defaultValue Seq.empty
             |> Seq.map (fun (name, element) ->
-                let read name = read name settings element
-
                 name,
-                { language = read "language" |> Option.defaultValue false
-                  hidden = read "hidden" |> Option.defaultValue false
-                  display = read "display" |> Option.defaultValue (name.ToUpperInvariant())
-                  top = Section.read "top" settings element
-                  side = Section.read "side" settings element
-                  nodes =
-                    read "nodes"
-                    |> Option.map (Json.toMap >> Map.map (fun _ y -> Json.str y))
-                    |> Option.defaultValue Map.empty })
+                element
+                |> Json.tryDeserialize<UI>
+                |> Option.defaultValue
+                    { display = None
+                      top = None
+                      side = None
+                      nodes = Map.empty
+                      hidden = false
+                      language = false })
             |> Map.ofSeq
 
-        member val current: string option = None with get, set
+        let mutable _current = None
+
+        member this.current
+            with get () = _current
+            and set value =
+                value
+                |> Option.filter (fun x -> this.supported |> Map.containsKey x)
+                |> fun x -> _current <- x
+
 
         member this.currentUI =
             this.current |> Option.bind (fun x -> this.supported |> Map.tryFind x)

@@ -21,7 +21,11 @@ type System.String with
         | true -> this[(other.Length) ..]
         | false -> this
 
-module Json =
+type System.Text.Json.JsonElement with
+    member inline this.IsTrue = this.ValueKind = System.Text.Json.JsonValueKind.True
+    member inline this.IsFalse = this.ValueKind = System.Text.Json.JsonValueKind.False
+
+module rec Json =
     open System.Text.Json.Serialization
     open System.Text.Json
     open System.IO
@@ -51,7 +55,6 @@ module Json =
 
 
     let str (element: JsonElement) = element.ToString()
-
 
     let contains (name: string) (element: JsonElement) =
         element.EnumerateObject() |> Seq.exists (fun e -> e.Name.IEquals name)
@@ -86,7 +89,7 @@ module Json =
 
     let empty = defaultWith "{}"
 
-    module private rec Converters =
+    module private Converters =
         type LinksJsonConverter() =
             inherit JsonConverter<Link list>()
 
@@ -107,6 +110,73 @@ module Json =
             override _.Write(_: Utf8JsonWriter, _: Link list, _: JsonSerializerOptions) : unit =
                 raise (System.NotSupportedException())
 
+        type UIJsonConverter() =
+            inherit JsonConverter<UI>()
+
+            override _.Read
+                (reader: byref<Utf8JsonReader>, typeToConvert: System.Type, options: JsonSerializerOptions)
+                : UI =
+                if base.CanConvert typeToConvert |> not then
+                    raise (System.NotSupportedException())
+                else
+                    JsonElement.TryParseValue(&reader)
+                    |> function
+                        | true, e ->
+                            e
+                            |> Option.ofNullable
+                            |> fun x ->
+                                { language = x |> bind "language" |> Option.map _.IsTrue |> Option.defaultValue false
+                                  nodes =
+                                    x
+                                    |> bind "nodes"
+                                    |> Option.map (toMap >> Map.map (fun _ v -> v |> str))
+                                    |> Option.defaultValue Map.empty
+                                  display = x |> bind "display" |> Option.map str
+                                  top =
+                                    let top = x |> bind "top"
+
+                                    top
+                                    |> bind "hidden"
+                                    |> Option.map _.IsTrue
+                                    |> Option.defaultValue false
+                                    |> function
+                                        | true -> None
+                                        | false ->
+                                            top
+                                            |> bind "links"
+                                            |> Option.bind tryDeserialize
+                                            |> Option.defaultValue []
+                                            |> fun x -> { links = x } |> Some
+
+                                  side =
+                                    let side = x |> bind "side"
+
+                                    side
+                                    |> bind "hidden"
+                                    |> Option.map _.IsTrue
+                                    |> Option.defaultValue false
+                                    |> function
+                                        | true -> None
+                                        | false ->
+                                            side
+                                            |> bind "links"
+                                            |> Option.bind tryDeserialize
+                                            |> Option.defaultValue []
+                                            |> fun x -> { links = x } |> Some
+
+                                  hidden =
+                                    x
+                                    |> bind "hidden"
+                                    |> Option.bind tryDeserialize<bool>
+                                    |> Option.defaultValue false
+
+                                }
+                        | _, _ -> raise (JsonException())
+
+
+            override _.Write(_: Utf8JsonWriter, _: UI, _: JsonSerializerOptions) : unit =
+                raise (System.NotSupportedException())
+
 
 
 
@@ -118,9 +188,10 @@ module Json =
         |> fun x ->
             x.PropertyNameCaseInsensitive <- true
             x.Converters.Insert(0, Converters.LinksJsonConverter())
+            x.Converters.Insert(0, Converters.UIJsonConverter())
             x
 
-    let tryDeserialize<'T> (element: JsonElement) =
+    let tryDeserialize<'T> (element: JsonElement) : 'T option =
         try
             element.Deserialize<'T>(options) |> Some
         with :? JsonException ->
