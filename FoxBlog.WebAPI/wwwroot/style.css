@@ -3,6 +3,16 @@ nav[data-topnav] {
 	flex-wrap: wrap;
 	justify-content: space-between;
 
+	button {
+		font-size: 16px;
+		-ms-align-content: center;
+		-webkit-align-content: center;
+		align-content: center;
+		-ms-flex-wrap: wrap;
+		-webkit-flex-wrap: wrap;
+		flex-wrap: wrap;
+	}
+
 	button.ghost {
 		padding: 1px;
 	}
@@ -91,21 +101,4 @@ html[data-theme="dark"] .icon-light {
 
 html:not([data-theme="dark"]) .icon-dark {
 	display: none;
-}
-
-button[ui],
-button[data-sidebar-toggle] {
-	font-size: 16px;
-	-ms-align-content: center;
-	-webkit-align-content: center;
-	align-content: center;
-	-ms-flex-wrap: wrap;
-	-webkit-flex-wrap: wrap;
-	flex-wrap: wrap;
-}
-
-summary {
-	details:not([open]) &:after {
-		transform: none;
-	}
 }

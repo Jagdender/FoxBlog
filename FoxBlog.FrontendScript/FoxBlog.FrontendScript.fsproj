@@ -12,11 +12,8 @@
 
   <ItemGroup>
     <PackageReference Include="Fable.Browser.Dom" Version="2.20.0" />
-    <PackageReference Include="Fable.Core" Version="5.0.0" />
+    <PackageReference Include="Fable.Core" Version="5.2.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\FoxBlog.Contract\FoxBlog.Contract.fsproj" />
-  </ItemGroup>
 
 </Project>

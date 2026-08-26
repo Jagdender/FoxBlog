@@ -18,8 +18,7 @@ open FoxBlog.View
 type ConfigOptions = { Config: string }
 
 type IServiceCollection with
-    member this.AddViews() =
-        this.AddScoped<Index>().AddScoped<Top>().AddScoped<Side>().AddScoped<Main>().AddScoped<Head>()
+    member this.AddViews() = this.AddScoped<Index>()
 
     member this.AddSerivces() =
         let compression = CompressionLevel.SmallestSize

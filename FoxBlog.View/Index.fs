@@ -2,25 +2,142 @@ namespace FoxBlog.View
 
 open Giraffe.ViewEngine
 
-type Index(context: UI.Context, top: Top, side: Side, main: Main, head: Head) =
+module private Head =
+
+    let private misc =
+        rawText
+            """
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="stylesheet" href="https://unpkg.com/@knadh/oat/oat.min.css">
+            <link rel="stylesheet" href="/style.css">
+            <script src="https://unpkg.com/@knadh/oat/oat.min.js" defer></script>
+            <script type="module" src="/main.js" defer></script>
+            """
+
+    let content = head [] [ misc; title [] [] ]
+
+module private Main =
+    let content = main [] [ div [ _class "container" ] [ h1 [] [ str "👋" ] ] ]
+
+module private Top =
+    let private LinkBtn =
+        rawText
+            """
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"></path></svg>
+            """
+
+    let private fullLinks (links: Types.Link list) =
+        links
+        |> List.map (fun link -> li [] [ a [ _class "button ghost small"; _href link.url ] [ str link.name ] ])
+        |> menu [ _class "buttons items-center" ]
+
+    let private dropdownLinks (ui: UI.Context) (links: Types.Link list) =
+        links
+        |> List.map (fun link -> a [ role "menuitem"; _href link.url ] [ str link.name ])
+        |> dropdown [ _class "outline small" ] [ ui.node "LINKS"; LinkBtn ]
+
+    let private uiBtn (ui: UI.Context) (content: Content.Context) =
+        ui.current
+        |> Option.bind _.display
+        |> Option.map (fun currentDisplay ->
+            let items =
+                ui.supported
+                |> List.map (fun ui ->
+                    match ui.display with
+                    | Some display ->
+                        let name = ui.name |> Option.map _.Trim('/') |> Option.defaultValue ""
+                        let path = content.path.Trim('/')
+                        let href = System.IO.Path.Combine("/", name, path)
+                        a [ role "menuitem"; _href href ] [ display |> str ]
+                    | None -> emptyText)
+
+            dropdown [ _class "ghost small" ] [ str currentDisplay ] items)
+        |> Option.defaultValue emptyText
+
+    let private themeBtn =
+        span
+            []
+            [ button
+                  [ _class "ghost"; _onclick "toggleTheme()" ]
+                  [ span [ _class "icon-dark" ] [ str "🌙" ]
+                    span [ _class "icon-light" ] [ str "☀️" ] ] ]
+
+    let content (ui: UI.Context) (content: Content.Context) =
+        ui.current
+        |> Option.bind _.top
+        |> Option.map (fun top ->
+            let linkBtns =
+                match top.links with
+                | [] -> emptyText
+                | [ _ ] -> fullLinks top.links
+                | links when links.Length > 5 -> dropdownLinks ui links
+                | links -> span [ flag "links" ] [ fullLinks links; dropdownLinks ui links ]
+
+            let uiName = ui.current |> Option.bind _.name |> Option.defaultValue ""
+            let href = System.IO.Path.Combine("/", uiName)
+
+            nav
+                [ flag "data-topnav" ]
+                [ div
+                      [ _class "items-center hstack"; flag "left" ]
+                      [ button [ flag "data-sidebar-toggle" ] [ ui.node "MENU" ]
+                        a [ _href href ] [ ui.node "HOME" ] ]
+                  div [ _class "col-end justify-end hstack"; flag "right" ] [ linkBtns; uiBtn ui content; themeBtn ] ])
+        |> Option.defaultValue emptyText
+
+module private Side =
+
+    let rec list (source: Content.Category) =
+        let posts =
+            source.posts |> List.map (fun x -> li [] [ a [ _href x.path ] [ str x.name ] ])
+
+        let categories =
+            source.categories
+            |> List.map (fun x -> li [] [ details [] [ summary [] [ str x.name ]; ul [] (list x) ] ])
+
+        posts @ categories
+
+
+    let content (ui: UI.Context) (content: Content.Context) =
+        ui.current
+        |> Option.bind _.side
+        |> Option.map (fun side ->
+            let inline toLinkBtn (link: Types.Link) =
+                a [ _class "button outline small"; _href link.url ] [ rawText link.name ]
+
+            aside
+                [ flag "data-sidebar" ]
+                [ nav [] [ ul [] (list content.root) ]
+                  footer [ _class "gap-1 vstack" ] (side.links |> List.map toLinkBtn) ])
+        |> Option.defaultValue emptyText
+
+
+type Index(ui: UI.Context, content: Content.Context) =
 
     let attributes =
-        match context.current with
+        match ui.current with
         | None -> []
         | Some value ->
-            [ yield attr "ui" value
-              match context.currentUI with
-              | Some ui when ui.language -> yield attr "lang" value
+            [ match ui.current with
+              | Some ui when ui.language ->
+                  match ui.name with
+                  | Some name -> yield attr "lang" name
+                  | None -> ()
               | _ -> () ]
 
     let body =
         let layout =
-            context.currentUI
+            ui.current
             |> Option.bind _.side
             |> Option.map (fun _ -> "data-sidebar-layout")
             |> Option.defaultValue ""
             |> flag
 
-        body [ layout ] [ top.content; side.content; main.content ]
+        let top = Top.content ui content
+        let side = Side.content ui content
+        let main = Main.content
 
-    member _.Html = html attributes [ head.content; body ]
+        body [ layout ] [ top; side; main ]
+
+    member _.Html = html attributes [ Head.content; body ]

@@ -1,5 +1,6 @@
 namespace Giraffe.ViewEngine
 
+[<AutoOpen>]
 module Extensions =
 
     let dropdown (attributes: XmlAttribute list) (content: XmlNode list) (options: XmlNode list) =
