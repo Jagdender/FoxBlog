@@ -1,4 +1,0 @@
-namespace FoxBlog
-
-module Types =
-    ()

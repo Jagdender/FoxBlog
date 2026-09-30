@@ -63,11 +63,6 @@ type IServiceCollection with
 let createMiddleware x =
     Func<HttpContext, RequestDelegate, System.Threading.Tasks.Task> x
 
-type PathString with
-    member path.IStartsWithSegments seg =
-        path.StartsWithSegments(seg, StringComparison.InvariantCultureIgnoreCase)
-
-
 type HttpResponse with
     member response.NotFound =
         response.StatusCode <- StatusCodes.Status404NotFound

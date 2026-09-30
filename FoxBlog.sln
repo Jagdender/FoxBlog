@@ -9,8 +9,6 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FoxBlog.View", "FoxBlog.Vie
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FoxBlog.FrontendScript", "FoxBlog.FrontendScript\FoxBlog.FrontendScript.fsproj", "{5FA94C9C-07EE-4427-8B5B-799086552A01}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FoxBlog.Contract", "FoxBlog.Contract\FoxBlog.Contract.fsproj", "{B7A0F27A-20A4-432D-8AA6-88CB9DE14D83}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{5FA94C9C-07EE-4427-8B5B-799086552A01}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5FA94C9C-07EE-4427-8B5B-799086552A01}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FA94C9C-07EE-4427-8B5B-799086552A01}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B7A0F27A-20A4-432D-8AA6-88CB9DE14D83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B7A0F27A-20A4-432D-8AA6-88CB9DE14D83}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B7A0F27A-20A4-432D-8AA6-88CB9DE14D83}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B7A0F27A-20A4-432D-8AA6-88CB9DE14D83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

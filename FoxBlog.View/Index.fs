@@ -18,7 +18,8 @@ module private Head =
     let content = head [] [ misc; title [] [] ]
 
 module private Main =
-    let content = main [] [ div [ _class "container" ] [ h1 [] [ str "👋" ] ] ]
+    let content (ui: UI.Context) (content: Content.Context) =
+        main [] [ div [ _class "container" ] [ h1 [] [ str "👋" ] ] ]
 
 module private Top =
     let private LinkBtn =
@@ -48,7 +49,11 @@ module private Top =
                     | Some display ->
                         let name = ui.name |> Option.map _.Trim('/') |> Option.defaultValue ""
                         let path = content.path.Trim('/')
-                        let href = System.IO.Path.Combine("/", name, path)
+
+                        let href =
+                            System.IO.Path.Combine("/", name, path)
+                            |> String.map (fun c -> if c = System.IO.Path.DirectorySeparatorChar then '/' else c)
+
                         a [ role "menuitem"; _href href ] [ display |> str ]
                     | None -> emptyText)
 
@@ -75,7 +80,8 @@ module private Top =
                 | links -> span [ flag "links" ] [ fullLinks links; dropdownLinks ui links ]
 
             let uiName = ui.current |> Option.bind _.name |> Option.defaultValue ""
-            let href = System.IO.Path.Combine("/", uiName)
+
+            let href = $"/{uiName}"
 
             nav
                 [ flag "data-topnav" ]
@@ -88,13 +94,21 @@ module private Top =
 
 module private Side =
 
-    let rec list (source: Content.Category) =
+    let rec list (ui: Types.UI option) (source: Content.Category) =
+        let hrefWithUI path =
+            ui
+            |> Option.bind _.name
+            |> Option.map (fun x -> $"/{x}{path}")
+            |> Option.defaultValue path
+            |> _href
+
         let posts =
-            source.posts |> List.map (fun x -> li [] [ a [ _href x.path ] [ str x.name ] ])
+            source.posts
+            |> List.map (fun x -> li [] [ a [ hrefWithUI x.path ] [ str x.name ] ])
 
         let categories =
             source.categories
-            |> List.map (fun x -> li [] [ details [] [ summary [] [ str x.name ]; ul [] (list x) ] ])
+            |> List.map (fun x -> li [] [ details [] [ summary [] [ str x.name ]; ul [] (list ui x) ] ])
 
         posts @ categories
 
@@ -108,7 +122,7 @@ module private Side =
 
             aside
                 [ flag "data-sidebar" ]
-                [ nav [] [ ul [] (list content.root) ]
+                [ nav [] [ ul [] (list ui.current content.root) ]
                   footer [ _class "gap-1 vstack" ] (side.links |> List.map toLinkBtn) ])
         |> Option.defaultValue emptyText
 
@@ -136,7 +150,7 @@ type Index(ui: UI.Context, content: Content.Context) =
 
         let top = Top.content ui content
         let side = Side.content ui content
-        let main = Main.content
+        let main = Main.content ui content
 
         body [ layout ] [ top; side; main ]
 

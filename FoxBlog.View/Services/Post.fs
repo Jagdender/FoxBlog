@@ -6,9 +6,6 @@ module Post =
 
     module Metadata =
 
-        [<Literal>]
-        let configExt = ".conf"
-
         module private Mapper =
             let rec private ext (path: string) =
                 seq {

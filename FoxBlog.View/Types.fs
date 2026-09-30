@@ -1,8 +1,6 @@
 namespace FoxBlog.View
 
 module Types =
-    type Link = { name: string; url: string }
-
     type UI =
         {
           // default if None
@@ -22,4 +20,13 @@ module Types =
               nodes = Map.empty
               language = false }
 
+
+
+    and Link = { name: string; url: string }
     and Section = { links: Link list }
+
+    type Post =
+        { name: string option
+          display: string option
+          date: System.DateTime option
+          tags: string list }

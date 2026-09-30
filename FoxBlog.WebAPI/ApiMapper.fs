@@ -52,16 +52,19 @@ let routeMiddleware =
         let settings = context.RequestServices.GetRequiredService<Global.Settings>()
         let content = context.RequestServices.GetRequiredService<Content.Context>()
 
+        let mutable path = context.Request.Path
+
         ui.supported
         |> List.tryFind (
             _.name
-            >> function
-                | Some name -> $"/{name}"
-                | None -> $"/"
-            >> context.Request.Path.StartsWithSegments
+            >> Option.map (fun x -> $"/{x}")
+            >> Option.exists (fun x -> context.Request.Path.StartsWithSegments(x, &path))
         )
+        |> Option.orElseWith (fun _ ->
+            path <- context.Request.Path
+            ui.supported |> List.tryFindBack (_.name >> Option.isNone))
         |> fun current -> ui.current <- current
 
-
+        content.path <- path
 
         request.Invoke context)
