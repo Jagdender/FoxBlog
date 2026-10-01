@@ -24,3 +24,8 @@ type System.String with
 type System.Text.Json.JsonElement with
     member inline this.IsTrue = this.ValueKind = System.Text.Json.JsonValueKind.True
     member inline this.IsFalse = this.ValueKind = System.Text.Json.JsonValueKind.False
+
+module Seq =
+    let tee action source =
+        Seq.iter action source
+        source

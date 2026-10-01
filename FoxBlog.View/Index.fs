@@ -18,8 +18,17 @@ module private Head =
     let content = head [] [ misc; title [] [] ]
 
 module private Main =
-    let content (ui: UI.Context) (content: Content.Context) =
-        main [] [ div [ _class "container" ] [ h1 [] [ str "👋" ] ] ]
+    let content (ui: UI.Context) (content: Content.Context) (settings: Global.Settings) =
+        async {
+            let! text =
+                content.current
+                |> Option.map (_.filename >> System.IO.File.ReadAllTextAsync)
+                |> Option.defaultValue (System.Threading.Tasks.Task.FromResult("404")) // TODO: default 404 content
+                |> Async.AwaitTask
+
+            let markdown = text |> Md.parse |> Md.toHtml
+            return main [] [ div [ _class "container" ] [ h1 [] [ rawText markdown ] ] ]
+        }
 
 module private Top =
     let private LinkBtn =
@@ -48,7 +57,9 @@ module private Top =
                     match ui.display with
                     | Some display ->
                         let name = ui.name |> Option.map _.Trim('/') |> Option.defaultValue ""
-                        let path = content.path.Trim('/')
+
+                        let path =
+                            content.current |> Option.map _.path.TrimStart('/') |> Option.defaultValue ""
 
                         let href =
                             System.IO.Path.Combine("/", name, path)
@@ -112,7 +123,6 @@ module private Side =
 
         posts @ categories
 
-
     let content (ui: UI.Context) (content: Content.Context) =
         ui.current
         |> Option.bind _.side
@@ -127,7 +137,7 @@ module private Side =
         |> Option.defaultValue emptyText
 
 
-type Index(ui: UI.Context, content: Content.Context) =
+type Index(ui: UI.Context, content: Content.Context, settings: Global.Settings) =
 
     let attributes =
         match ui.current with
@@ -150,7 +160,7 @@ type Index(ui: UI.Context, content: Content.Context) =
 
         let top = Top.content ui content
         let side = Side.content ui content
-        let main = Main.content ui content
+        let main = Main.content ui content settings |> Async.RunSynchronously
 
         body [ layout ] [ top; side; main ]
 

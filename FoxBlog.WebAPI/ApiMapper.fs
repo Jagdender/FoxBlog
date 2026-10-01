@@ -65,6 +65,6 @@ let routeMiddleware =
             ui.supported |> List.tryFindBack (_.name >> Option.isNone))
         |> fun current -> ui.current <- current
 
-        content.path <- path
+        content.current <- path |> string |> content.mapToPost
 
         request.Invoke context)

@@ -4,7 +4,10 @@ open System.IO
 
 module Content =
 
-    type Post = { name: string; path: string }
+    type Post =
+        { name: string
+          path: string
+          filename: string }
 
     type Category =
         { name: string
@@ -12,10 +15,7 @@ module Content =
           posts: Post list }
 
     type Context(uiCtx: UI.Context, settings: Global.Settings) =
-        let directory =
-            settings.Root
-            |> Directory.EnumerateDirectories
-            |> Seq.tryFind (Path.GetFileName >> _.IEquals("posts"))
+        let directory = settings.Root
 
         let real path =
             DirectoryInfo(path)
@@ -40,33 +40,32 @@ module Content =
                         | paths ->
                             paths
                             |> List.pick (fun (path, ui) -> ui |> Option.bind _.name |> Option.map (fun _ -> path))
-                |> fun path -> (directory.Value, path)
-                |> Path.GetRelativePath
+                |> fun path -> Path.GetRelativePath(directory, path)
                 |> _.Split(Path.DirectorySeparatorChar, System.StringSplitOptions.RemoveEmptyEntries)
                 |> String.concat "/"
-                |> fun x -> { name = name; path = $"/{x}" })
+                |> fun x ->
+                    { name = name
+                      path = $"/{x}"
+                      filename = Path.Combine(directory, x) })
 
-        let mutable set = Set.empty
+        let mutable linkSet = Set.empty
 
-        let iter action source =
-            Seq.iter action source
-            source
+        let resolve =
+            Seq.map real
+            >> Seq.filter (linkSet.Contains >> not)
+            >> Seq.tee (fun x -> linkSet <- linkSet.Add x)
 
         let rec enumerate (path: string) = //PERF: iter ?
             let categories =
                 Directory.EnumerateDirectories path
-                |> Seq.map real
-                |> Seq.filter (set.Contains >> not)
-                |> iter (fun x -> set <- set.Add x)
+                |> resolve
                 |> Seq.map enumerate
                 |> Seq.toList
 
             let posts =
                 Directory.EnumerateFiles path
-                |> Seq.map real
-                |> Seq.filter (set.Contains >> not)
-                |> iter (fun x -> set <- set.Add x)
                 |> Seq.filter _.IEndsWith($".md")
+                |> resolve
                 |> toPost
                 |> Seq.toList
 
@@ -74,14 +73,21 @@ module Content =
               categories = categories
               posts = posts }
 
-        member val path = "/" with get, set
+        member this.mapToPost(path: string) =
+            let find category name =
+                category |> Option.bind (_.categories >> List.tryFind _.name.IEquals(name))
+
+            path
+            |> _.TrimEnd(".md").Split('/', System.StringSplitOptions.RemoveEmptyEntries)
+            |> function
+                | [||] -> None
+                | [| item |] -> this.root.posts |> List.tryFind _.name.IEquals(item)
+                | array ->
+                    Array.sub array 0 (array.Length - 1)
+                    |> Array.fold find (Some this.root)
+                    |> Option.bind (_.posts >> List.tryFind _.name.IEquals(array |> Array.last))
+
 
         member val current: Post option = None with get, set
 
-        member _.root =
-            directory
-            |> Option.map enumerate
-            |> Option.defaultValue
-                { name = "posts"
-                  categories = []
-                  posts = [] }
+        member _.root = directory |> enumerate
